@@ -1,0 +1,37 @@
+missing module named 'multiprocessing.forking' - imported by G:\Programacion\Python\Python39\Lib\site-packages\PyInstaller\loader\rthooks\pyi_rth_multiprocessing.py
+missing module named posix - imported by os, shutil, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named _posixsubprocess - imported by subprocess, multiprocessing.util, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named org - imported by pickle, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named readline - imported by cmd, code, pdb, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named asyncio.DefaultEventLoopPolicy - imported by asyncio, asyncio.events, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named multiprocessing.AuthenticationError - imported by multiprocessing, multiprocessing.connection, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named multiprocessing.BufferTooShort - imported by multiprocessing, multiprocessing.connection, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named multiprocessing.TimeoutError - imported by multiprocessing, multiprocessing.pool, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named multiprocessing.get_context - imported by multiprocessing, multiprocessing.pool, multiprocessing.managers, multiprocessing.sharedctypes, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named _winreg - imported by platform, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named java - imported by platform, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named 'java.lang' - imported by platform, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py, xml.sax._exceptions
+missing module named vms_lib - imported by platform, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named termios - imported by tty, getpass, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named _scproxy - imported by urllib.request, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named resource - imported by posix, test.support, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named multiprocessing.get_start_method - imported by multiprocessing, multiprocessing.spawn, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named multiprocessing.set_start_method - imported by multiprocessing, multiprocessing.spawn, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named _posixshmem - imported by multiprocessing.resource_tracker, multiprocessing.shared_memory, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named pwd - imported by posixpath, subprocess, shutil, tarfile, pathlib, http.server, webbrowser, netrc, getpass, distutils.util, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named grp - imported by subprocess, shutil, tarfile, pathlib, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named pep517 - imported by importlib.metadata, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+excluded module named _frozen_importlib - imported by importlib, importlib.abc, zipimport, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named _frozen_importlib_external - imported by importlib._bootstrap, importlib, importlib.abc, zipimport, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py
+missing module named 'org.python' - imported by copy, C:\Users\VÍCTOR\Desktop\Programación\Marcador\Marcador.py, xml.sax
+missing module named cffi - imported by PIL.Image, PIL.PyAccess, PIL.ImageTk
+missing module named olefile - imported by PIL.FpxImagePlugin, PIL.MicImagePlugin
+missing module named IPython - imported by PIL.ImageShow
+missing module named 'PySide2.QtGui' - imported by PIL.ImageQt
+missing module named PySide2 - imported by PIL.ImageQt
+missing module named 'PyQt5.QtGui' - imported by PIL.ImageQt
+missing module named 'PySide6.QtGui' - imported by PIL.ImageQt
+missing module named PySide6 - imported by PIL.ImageQt
+missing module named 'PyQt6.QtGui' - imported by PIL.ImageQt
+missing module named PyQt6 - imported by PIL.ImageQt
+missing module named numpy - imported by PIL.ImageFilter
