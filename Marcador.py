@@ -275,6 +275,14 @@ def addBola(): #añade o quita Bolas
   if incdec.get()==1:
     if Bola ==3:
       resetStrikeBola()
+      #comprobaremos las bases para añadir corredores para añadir corredores
+      if Primera.get()==0 and Segunda.get()==0:
+        Primera.set(1)
+      elif Primera.get()==1 and Segunda.get()==0:
+        Segunda.set(1)
+      elif Primera.get()==1 and Segunda.get()==1 and Tercera.get()==0:
+        Tercera.set(1)
+      bases()
     else:
       Bola=Bola+1
   else:
