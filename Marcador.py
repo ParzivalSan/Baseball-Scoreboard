@@ -9,7 +9,7 @@ def scoreboard(): #ventana del scoreboard, lo que se muestra en la retrasmisión
   global ScoreBoardScreen
   ScoreBoardScreen=Toplevel()
   ScoreBoardScreen.resizable(0,0) 
-  ScoreBoardScreen.geometry("312x125+10+10")
+  ScoreBoardScreen.geometry("314x125+50+50")
   ScoreBoardScreen.configure(bg='white')
   ScoreBoardScreen.iconbitmap("logo/Barcelona.ico")
   #ScoreBoardScreen.overrideredirect(True) #Eliminamos el title bar
@@ -29,26 +29,33 @@ def scoreboard(): #ventana del scoreboard, lo que se muestra en la retrasmisión
   RunsAway=0
   global RunsHome
   RunsHome=0
-
-  Label(frameAway,text=RunsAway, font=("Calibri",12,"bold"), bg='#00417e', fg="white", width=2).grid(row=0, column=2, rowspan=2)
-  Label(frameHome,text=RunsHome, font=("Calibri",12,"bold"), bg="#a50032", fg="white", width=2).grid(row=0, column=2, rowspan=2)
+  global RunsAwayLabel
+  global RunsHomeLabel
+  RunsAwayLabel=Label(frameAway,text=RunsAway, font=("Calibri",12,"bold"), bg='#00417e', fg="white", width=2)
+  RunsAwayLabel.grid(row=0, column=2, rowspan=2)
+  RunsHomeLabel=Label(frameHome,text=RunsHome, font=("Calibri",12,"bold"), bg="#a50032", fg="white", width=2)
+  RunsHomeLabel.grid(row=0, column=2, rowspan=2)
 
   #At bat
   global atbatLabel
-  atbatLabel=Label(ScoreBoardScreen,text="A/B: 1º #26 Víctor Cuevas", font=("Calibri",12,"bold"), bg='#00417e', fg="white", width=25)
-  atbatLabel.grid(row=5, column=0, columnspan=5)
+  atbatLabel=Label(ScoreBoardScreen,text="A/B: 1º #26 Víctor Cuevas", font=("Calibri",12,"bold"), bg='#00417e',width=28, fg="white", anchor='w')
+  atbatLabel.grid(row=5, column=0, columnspan=7)
 
   #Bases
+  global BasesLabel
   Bases="Cuadro0"
   global imgBases
   imgBases=Image.open("img/" + Bases + ".png")
   imgBases=imgBases.resize((80,54),Image.ANTIALIAS)
   imgBases=ImageTk.PhotoImage(imgBases)
   #Label(ScoreBoardScreen,text="   ", bg='white').grid(row=1, column=5)
-  Label(ScoreBoardScreen,image=imgBases, bg='white').grid(row=0, column=4, rowspan=4, columnspan=2)
+  BasesLabel=Label(ScoreBoardScreen,image=imgBases, bg='white')
+  BasesLabel.grid(row=0, column=4, rowspan=4, columnspan=2)
 
   #Inning
   global innScoreBoardScreen
+  global topbotInnLabel
+  global actualInnLabel
   innScoreBoardScreen=Image.open("img/Arrow top.png")
   innScoreBoardScreen=innScoreBoardScreen.resize((15,15),Image.ANTIALIAS)
   innScoreBoardScreen=ImageTk.PhotoImage(innScoreBoardScreen)
@@ -56,10 +63,15 @@ def scoreboard(): #ventana del scoreboard, lo que se muestra en la retrasmisión
   actualInn=1
 
   Label(ScoreBoardScreen,text="   ", bg='white').grid(row=1, column=3)
-  Label(ScoreBoardScreen,image=innScoreBoardScreen, bg='white').grid(row=0, column=8)
-  Label(ScoreBoardScreen,text=actualInn, bg='white').grid(row=0, column=9)
+  topbotInnLabel=Label(ScoreBoardScreen,image=innScoreBoardScreen, bg='white')
+  topbotInnLabel.grid(row=0, column=7)
+  actualInnLabel=Label(ScoreBoardScreen,text=actualInn, bg='white')
+  actualInnLabel.grid(row=0, column=8)
 
   #Out/Bola/Strike
+  global imgOutLabel
+  global imgBolaLabel
+  global imgStrikeLabel
   global Out
   Out=0
   global Bola
@@ -82,13 +94,16 @@ def scoreboard(): #ventana del scoreboard, lo que se muestra en la retrasmisión
   imgStrike=imgStrike.resize((30,15),Image.ANTIALIAS)
   imgStrike=ImageTk.PhotoImage(imgStrike)
 
-  Label(ScoreBoardScreen,text="   ", bg='white').grid(row=1, column=7)
-  Label(ScoreBoardScreen,text="Out", justify="left", font=("Calibri",12), bg='white').grid(row=1, column=8)
-  Label(ScoreBoardScreen,image=imgOut, bg='white').grid(row=1, column=9)
-  Label(ScoreBoardScreen,text="Bola", justify="left", font=("Calibri",12), bg='white').grid(row=2, column=8)
-  Label(ScoreBoardScreen,image=imgBola, bg='white').grid(row=2, column=9)
-  Label(ScoreBoardScreen,text="Strike", justify="left" , font=("Calibri",12), bg='white').grid(row=3, column=8)
-  Label(ScoreBoardScreen,image=imgStrike, bg='white').grid(row=3, column=9)
+  Label(ScoreBoardScreen,text="   ", bg='white').grid(row=1, column=6)
+  Label(ScoreBoardScreen,text="Out", justify="left", font=("Calibri",12), bg='white').grid(row=1, column=7)
+  imgOutLabel=Label(ScoreBoardScreen,image=imgOut, bg='white')
+  imgOutLabel.grid(row=1, column=8)
+  Label(ScoreBoardScreen,text="Bola", justify="left", font=("Calibri",12), bg='white').grid(row=2, column=7)
+  imgBolaLabel=Label(ScoreBoardScreen,image=imgBola, bg='white')
+  imgBolaLabel.grid(row=2, column=8)
+  Label(ScoreBoardScreen,text="Strike", justify="left" , font=("Calibri",12), bg='white').grid(row=3, column=7)
+  imgStrikeLabel=Label(ScoreBoardScreen,image=imgStrike, bg='white')
+  imgStrikeLabel.grid(row=3, column=8)
 
 def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de seleccionar pedira si quieres eliminar todos los datos del marcador
   def confirmteam(): #función del botón confirm team
@@ -97,37 +112,40 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     global logoAwayRez
     if AwayTeam.get()=="Antorcha":
       shortname="ANT"
-      logo="logo/Gava.png"
+      logo="logo/Antorcha.png"
     elif AwayTeam.get()=="Astros":
       shortname="AST"
-      logo="logo/Gava.png"
+      logo="logo/astros.png"
     elif AwayTeam.get()=="Barcelona":
       shortname="BCN"
       logo="logo/Barcelona.png"
-    elif AwayTeam.get()=="Marlins":
-      shortname="MAR"
+    elif AwayTeam.get()=="Gava":
+      shortname="GAV"
       logo="logo/Gava.png"
     elif AwayTeam.get()=="Marlins":
       shortname="MAR"
-      logo="logo/Gava.png"
+      logo="logo/marlins.png"
     elif AwayTeam.get()=="Miralbueno":
       shortname="MIR"
-      logo="logo/Gava.png"
+      logo="logo/miralbueno.png"
     elif AwayTeam.get()=="Navarra":
       shortname="NAV"
-      logo="logo/Gava.png"
+      logo="logo/Navarra.png"
     elif AwayTeam.get()=="Rivas":
       shortname="RIV"
-      logo="logo/Gava.png"
+      logo="logo/Rivas.png"
     elif AwayTeam.get()=="San Inazio":
       shortname="SnI"
-      logo="logo/Gava.png"
+      logo="logo/san_inazio.png"
     elif AwayTeam.get()=="Sant Boi":
       shortname="StB"
-      logo="logo/Gava.png"
+      logo="logo/santboi.png"
+    elif AwayTeam.get()=="Toros":
+      shortname="TOR"
+      logo="logo/toros.png"
     elif AwayTeam.get()=="Viladecans":
       shortname="VIL"
-      logo="logo/Gava.png"
+      logo="logo/viladecans.png"
     logoAway=Image.open(logo)
     logoAwayRez=logoAway.resize((25,25),Image.ANTIALIAS)
     logoAwayRez=ImageTk.PhotoImage(logoAwayRez)
@@ -139,38 +157,40 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     global logoHomeRez
     if HomeTeam.get()=="Antorcha":
       shortname="ANT"
-      logo="logo/Gava.png"
+      logo="logo/Antorcha.png"
     elif HomeTeam.get()=="Astros":
       shortname="AST"
-      logo="logo/Gava.png"
+      logo="logo/astros.png"
     elif HomeTeam.get()=="Barcelona":
       shortname="BCN"
       logo="logo/Barcelona.png"
-    elif HomeTeam.get()=="Marlins":
-      shortname="MAR"
+    elif HomeTeam.get()=="Gava":
+      shortname="GAV"
       logo="logo/Gava.png"
     elif HomeTeam.get()=="Marlins":
       shortname="MAR"
-      logo="logo/Gava.png"
+      logo="logo/marlins.png"
     elif HomeTeam.get()=="Miralbueno":
       shortname="MIR"
-      logo="logo/Gava.png"
+      logo="logo/miralbueno.png"
     elif HomeTeam.get()=="Navarra":
       shortname="NAV"
-      logo="logo/Gava.png"
+      logo="logo/Navarra.png"
     elif HomeTeam.get()=="Rivas":
       shortname="RIV"
-      logo="logo/Gava.png"
+      logo="logo/Rivas.png"
     elif HomeTeam.get()=="San Inazio":
       shortname="SnI"
-      logo="logo/Gava.png"
+      logo="logo/san_inazio.png"
     elif HomeTeam.get()=="Sant Boi":
       shortname="StB"
-      logo="logo/Gava.png"
+      logo="logo/santboi.png"
+    elif HomeTeam.get()=="Toros":
+      shortname="TOR"
+      logo="logo/toros.png"
     elif HomeTeam.get()=="Viladecans":
       shortname="VIL"
-      logo="logo/Gava.png"
-    
+      logo="logo/viladecans.png"
     logoHome=Image.open(logo)
     logoHomeRez=logoHome.resize((25,25),Image.ANTIALIAS)
     logoHomeRez=ImageTk.PhotoImage(logoHomeRez)
@@ -201,17 +221,25 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     #carreras
     RunsAway=0
     RunsHome=0
-    Label(frameAway,text=RunsAway, font=("Calibri",12,"bold"), bg='#00417e', fg="white", width=2).grid(row=0, column=2, rowspan=2)
-    Label(frameHome,text=RunsHome, font=("Calibri",12,"bold"), bg="#a50032", fg="white", width=2).grid(row=0, column=2, rowspan=2)
+    RunsAwayLabel.config(text=str(RunsAway))
+    RunsHomeLabel.config(text=str(RunsHome))
     #innings
     global innImg
     innImg=Image.open("img/Arrow top.png")
     innImg=innImg.resize((15,15),Image.ANTIALIAS)
     innImg=ImageTk.PhotoImage(innImg)
-    Label(ScoreBoardScreen,image=innImg, bg='white').grid(row=0, column=8)
-    Label(ScoreBoardScreen,text=1, bg='white').grid(row=0, column=9)
     topbot.set(0)
     currentInning.set(1)
+    actualInnLabel.config(text=1)
+    topbotInnLabel.config(image=innImg)
+
+    #strike/bolas/outs
+    global imgOut
+    imgOut=Image.open("img/Out0.jpg")
+    imgOut=imgOut.resize((30,15),Image.ANTIALIAS)
+    imgOut=ImageTk.PhotoImage(imgOut)
+    imgOutLabel.config(image=imgOut)
+    resetStrikeBola()
 
     #abrimos la ventana para seleccionar equipos
     SelectTeamScreen=Toplevel()
@@ -224,7 +252,7 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     HomeTeam=StringVar()
     HomeTeam.set("Barcelona")
     Label(SelectTeamScreen,text="Away", bg='white').grid(row=0, column=0, padx=2, pady=5)
-    OptionMenu(SelectTeamScreen,AwayTeam,"Antorcha","Astros","Barcelona","Marlins","Miralbueno","Navarra","Rivas","San Inazio","Sant Boi", "Viladecans").grid(row=0,column=1, padx=2, pady=5)
+    OptionMenu(SelectTeamScreen,AwayTeam,"Antorcha","Astros","Barcelona","Gava","Marlins","Miralbueno","Navarra","Rivas","San Inazio","Sant Boi", "Toros", "Viladecans").grid(row=0,column=1, padx=2, pady=5)
     Label(SelectTeamScreen,text="Home", bg='white').grid(row=1, column=0,padx=2, pady=5)
     OptionMenu(SelectTeamScreen,HomeTeam,"Antorcha","Astros","Barcelona","Marlins","Miralbueno","Navarra","Rivas","San Inazio","Sant Boi", "Viladecans").grid(row=1,column=1, padx=2, pady=5)
     Button(SelectTeamScreen,text="Confirmar equipos", command=confirmteam).grid(row=2,column=0, columnspan=2, padx=2, pady=5)
@@ -339,23 +367,26 @@ def addOut(): #añade o quita Outs
   imgOut=imgOut.resize((30,15),Image.ANTIALIAS)
   imgOut=ImageTk.PhotoImage(imgOut)
   Label(ScoreBoardScreen,image=imgOut, bg='white').grid(row=1, column=9)
+  imgOutLabel.config(image=imgOut)
   resetStrikeBola()
 
 def resetStrikeBola():#ponemos a 0 las bolas y los strikes 
   global Strike
-  global imgStrike
   Strike=0
-  imgStrike=Image.open("img/Strike"+ str(Strike) + ".jpg")
-  imgStrike=imgStrike.resize((30,15),Image.ANTIALIAS)
-  imgStrike=ImageTk.PhotoImage(imgStrike)
-  Label(ScoreBoardScreen,image=imgStrike, bg='white').grid(row=3, column=9)
   global Bola
   Bola=0
   global imgBola
-  imgBola=Image.open("img/Bola"+ str(Bola) + ".jpg")
+  imgBola=Image.open("img/Bola0.jpg")
   imgBola=imgBola.resize((40,15),Image.ANTIALIAS)
   imgBola=ImageTk.PhotoImage(imgBola)
-  Label(ScoreBoardScreen,image=imgBola, bg='white').grid(row=2, column=9)
+
+  global imgStrike
+  imgStrike=Image.open("img/Strike0.jpg")
+  imgStrike=imgStrike.resize((30,15),Image.ANTIALIAS)
+  imgStrike=ImageTk.PhotoImage(imgStrike)
+
+  imgBolaLabel.config(image=imgBola)
+  imgStrikeLabel.config(image=imgStrike)
 
 def addBola(): #añade o quita Bolas
   global Bola
@@ -386,7 +417,8 @@ def addBola(): #añade o quita Bolas
   imgBola=Image.open("img/Bola"+ str(Bola) + ".jpg")
   imgBola=imgBola.resize((40,15),Image.ANTIALIAS)
   imgBola=ImageTk.PhotoImage(imgBola)
-  Label(ScoreBoardScreen,image=imgBola, bg='white').grid(row=2, column=9)
+ 
+  imgBolaLabel.config(image=imgBola)
 
 def addStrike():
   global Strike
@@ -407,24 +439,25 @@ def addStrike():
   imgStrike=Image.open("img/Strike"+ str(Strike) + ".jpg")
   imgStrike=imgStrike.resize((30,15),Image.ANTIALIAS)
   imgStrike=ImageTk.PhotoImage(imgStrike)
-  Label(ScoreBoardScreen,image=imgStrike, bg='white').grid(row=3, column=9)
+  imgStrikeLabel.config(image=imgStrike)
 
 def addRun():
   global RunsAway
   global RunsHome
   global incdec
   if incdec.get()==1:
-    if topbot.get()==0: #La carrera sumara al visitatnte
+    if topbot.get()==0: #La carrera sumara al visitante
       RunsAway=RunsAway+1
     else:
       RunsHome=RunsHome+1
   else:
-    if topbot.get()==0: #La carrera restara al visitatnte
+    if topbot.get()==0: #La carrera restara al visitante
       RunsAway=RunsAway-1
     else:
       RunsHome=RunsHome-1
-  Label(frameAway,text=RunsAway, font=("Calibri",12,"bold"), bg='#00417e', fg="white", width=2).grid(row=0, column=2, rowspan=2)
-  Label(frameHome,text=RunsHome, font=("Calibri",12,"bold"), bg="#a50032", fg="white", width=2).grid(row=0, column=2, rowspan=2)
+  RunsAwayLabel.config(text=str(RunsAway))
+  RunsHomeLabel.config(text=str(RunsHome))
+  ScoreBoardScreen.update()
 
 def bases(): #Actualizamos las bases
   global imgBases
@@ -443,7 +476,7 @@ def bases(): #Actualizamos las bases
   imgBases=Image.open("img/Cuadro" + Bases + ".png")
   imgBases=imgBases.resize((80,54),Image.ANTIALIAS)
   imgBases=ImageTk.PhotoImage(imgBases)
-  Label(ScoreBoardScreen,image=imgBases, bg='white').grid(row=0, column=4, rowspan=4, columnspan=2)
+  BasesLabel.config(image=imgBases)
 
 def inning():
   global innImg
@@ -463,9 +496,11 @@ def inning():
     atbatLabel.config(text = textatbat)
 
   actualInn=currentInning.get()
+  actualInnLabel.config(text=actualInn)
+  topbotInnLabel.config(image=innImg)
   
-  Label(ScoreBoardScreen,image=innImg, bg='white').grid(row=0, column=8)
-  Label(ScoreBoardScreen,text=actualInn, bg='white').grid(row=0, column=9)
+  #Label(ScoreBoardScreen,image=innImg, bg='white').grid(row=0, column=8)
+  #Label(ScoreBoardScreen,text=actualInn, bg='white').grid(row=0, column=9)
 
 def hit():
   global hitgif
@@ -477,7 +512,7 @@ def hit():
       for j in range (16):
         hitgif=Image.open("img/Hit/hit"+str(j)+".png")
         hitgif=ImageTk.PhotoImage(hitgif)
-        Label(ScoreBoardScreen,image=hitgif, bg='white').grid(row=0, column=4, rowspan=4, columnspan=2)
+        BasesLabel.config(image=hitgif)
         ScoreBoardScreen.update()
         time.sleep(0.05)
 
@@ -486,27 +521,30 @@ def hit():
       else:
         imgBases=logoHome.resize((80,80),Image.ANTIALIAS)
       imgBases=ImageTk.PhotoImage(imgBases, format="gif -index 0")
-      Label(ScoreBoardScreen,image=imgBases, bg='white').grid(row=0, column=4, rowspan=4, columnspan=2)
+      BasesLabel.config(image=imgBases)
       ScoreBoardScreen.update()
       time.sleep(0.5)
 
     #Muestra el número de hits en el partido
-
     if topbot.get()==0: #el hit mostrará el equipo que lo ha dado dependiendo si estamos en bot o top inning
       HitsAway=HitsAway+1
-      Label(ScoreBoardScreen,text="Hits:", bg='white', font=("Calibri",12)).grid(row=1, column=4, columnspan=2)
-      Label(ScoreBoardScreen,text=HitsAway, bg='white', font=("Calibri",12)).grid(row=2, column=4, columnspan=2)
+      TopLabel=Label(ScoreBoardScreen,text="Hits:", bg='white', font=("Calibri",12))
+      TopLabel.grid(row=1, column=4, columnspan=2)
+      BotLabel=Label(ScoreBoardScreen,text=HitsAway, bg='white', font=("Calibri",12))
+      BotLabel.grid(row=2, column=4, columnspan=2)
       ScoreBoardScreen.update()
       time.sleep(2.0)
     else:
       HitsHome=HitsHome+1
-      Label(ScoreBoardScreen,text="Hits:", bg='white', font=("Calibri",12)).grid(row=1, column=4, columnspan=2)
-      Label(ScoreBoardScreen,text=HitsHome, bg='white', font=("Calibri",12)).grid(row=2, column=4, columnspan=2)
+      TopLabel=Label(ScoreBoardScreen,text="Hits:", bg='white', font=("Calibri",12))
+      TopLabel.grid(row=1, column=4, columnspan=2)
+      BotLabel=Label(ScoreBoardScreen,text=HitsHome, bg='white', font=("Calibri",12))
+      BotLabel.grid(row=2, column=4, columnspan=2)
       ScoreBoardScreen.update()
       time.sleep(2.0)
-    BlankImg=Image.open("img/Blank.png")
-    BlankImg=ImageTk.PhotoImage(BlankImg)
-    Label(ScoreBoardScreen,image=BlankImg, bg='white').grid(row=0, column=4, rowspan=4, columnspan=2)
+
+    TopLabel.destroy()
+    BotLabel.destroy()
     bases() #actualizamos las bases
     atBat() #cambiamos el at bat
   else: #Función de decrementar
@@ -530,7 +568,7 @@ def error():
     for j in range (7):
         errorgif=Image.open("img/Error/error"+str(j)+".png")
         errorgif=ImageTk.PhotoImage(errorgif)
-        Label(ScoreBoardScreen,image=errorgif, bg='white').grid(row=0, column=4, rowspan=4, columnspan=2)
+        BasesLabel.config(image=errorgif)
         ScoreBoardScreen.update()
         time.sleep(0.1)
 
@@ -543,10 +581,10 @@ def error():
     img2=ImageTk.PhotoImage(img2)
     
     for i in range(2): #Animación de Error
-      Label(ScoreBoardScreen,image=img1, bg='white').grid(row=0, column=4, rowspan=4, columnspan=2)
+      BasesLabel.config(image=img1)
       ScoreBoardScreen.update()
       time.sleep(0.15)
-      Label(ScoreBoardScreen,image=img2, bg='white').grid(row=0, column=4, rowspan=4, columnspan=2)
+      BasesLabel.config(image=img2)
       ScoreBoardScreen.update()
       time.sleep(0.3)
 
@@ -555,28 +593,31 @@ def error():
       else:
         imgBases=logoHome.resize((80,80),Image.ANTIALIAS)
       imgBases=ImageTk.PhotoImage(imgBases, format="gif -index 0")
-      Label(ScoreBoardScreen,image=imgBases, bg='white').grid(row=0, column=4, rowspan=4, columnspan=2)
+      BasesLabel.config(image=imgBases)
       ScoreBoardScreen.update()
       time.sleep(0.5)
 
     #Muestra el número de errors en el partido
-
     if topbot.get()==1: #el error mostrará el equipo que lo ha dado dependiendo si estamos en bot o top inning
       ErrorsAway=ErrorsAway+1
-      Label(ScoreBoardScreen,text="Errores:", bg='white', font=("Calibri",12)).grid(row=1, column=4, columnspan=2)
-      Label(ScoreBoardScreen,text=ErrorsAway, bg='white', font=("Calibri",12)).grid(row=2, column=4, columnspan=2)
+      TopLabel=Label(ScoreBoardScreen,text="Errores:", bg='white', font=("Calibri",12))
+      TopLabel.grid(row=1, column=4, columnspan=2)
+      BotLabel=Label(ScoreBoardScreen,text=ErrorsAway, bg='white', font=("Calibri",12))
+      BotLabel.grid(row=2, column=4, columnspan=2)
       ScoreBoardScreen.update()
       time.sleep(2.0)
     else:
       ErrorsHome=ErrorsHome+1
-      Label(ScoreBoardScreen,text="Errores:", bg='white', font=("Calibri",12)).grid(row=1, column=4, columnspan=2)
-      Label(ScoreBoardScreen,text=ErrorsHome, bg='white', font=("Calibri",12)).grid(row=2, column=4, columnspan=2)
+      TopLabel=Label(ScoreBoardScreen,text="Errores:", bg='white', font=("Calibri",12))
+      TopLabel.grid(row=1, column=4, columnspan=2)
+      BotLabel=Label(ScoreBoardScreen,text=ErrorsHome, bg='white', font=("Calibri",12))
+      BotLabel.grid(row=2, column=4, columnspan=2)
       ScoreBoardScreen.update()
       time.sleep(2.0)
 
-    BlankImg=Image.open("img/Blank.png")
-    BlankImg=ImageTk.PhotoImage(BlankImg)
-    Label(ScoreBoardScreen,image=BlankImg, bg='white').grid(row=0, column=4, rowspan=4, columnspan=2)
+    TopLabel.destroy()
+    BotLabel.destroy()
+    atBat() #cambiamos el at bat
     bases() #actualizamos las bases
 
   else: #Función de decrementar
@@ -624,7 +665,7 @@ root=Tk()
 root.title("CBS Barcelona Scoreboard")
 root.iconbitmap("logo/Barcelona.ico")
 root.resizable(0,0) #Ancho, Alto (1 se puede 0 no se puede)
-root.geometry("350x400+700+300")
+root.geometry("350x400")
 
 #Listas de bateadores
 global AwayNum
@@ -702,4 +743,5 @@ ScoreBoardScreen=""
 frameAway=""
 frameHome=""
 root.after(10, scoreboard)
+root.geometry('+400+50')
 root.mainloop()
