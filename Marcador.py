@@ -220,6 +220,9 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     OptionMenu(SelectTeamScreen,HomeTeam,"Antorcha","Astros","Barcelona","Marlins","Miralbueno","Navarra","Rivas","San Inazio","Sant Boi", "Viladecans").grid(row=1,column=1, padx=2, pady=5)
     Button(SelectTeamScreen,text="Confirmar equipos", command=confirmteam).grid(row=2,column=0, columnspan=2, padx=2, pady=5)
 
+def lineUp(): #Te deja añadir lineUp de los equipos
+  print("TBC")
+
 def addOut(): #añade o quita Outs
   global Out
   global incdec
