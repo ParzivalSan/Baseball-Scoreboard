@@ -9,7 +9,7 @@ def scoreboard(): #ventana del scoreboard, lo que se muestra en la retrasmisión
   global ScoreBoardScreen
   ScoreBoardScreen=Toplevel()
   ScoreBoardScreen.resizable(0,0) 
-  ScoreBoardScreen.geometry("312x95")
+  ScoreBoardScreen.geometry("312x125+10+10")
   ScoreBoardScreen.configure(bg='white')
   ScoreBoardScreen.iconbitmap("logo/Barcelona.ico")
   #ScoreBoardScreen.overrideredirect(True) #Eliminamos el title bar
@@ -32,6 +32,11 @@ def scoreboard(): #ventana del scoreboard, lo que se muestra en la retrasmisión
 
   Label(frameAway,text=RunsAway, font=("Calibri",12,"bold"), bg='#00417e', fg="white", width=2).grid(row=0, column=2, rowspan=2)
   Label(frameHome,text=RunsHome, font=("Calibri",12,"bold"), bg="#a50032", fg="white", width=2).grid(row=0, column=2, rowspan=2)
+
+  #At bat
+  global atbatLabel
+  atbatLabel=Label(ScoreBoardScreen,text="A/B: 1º #26 Víctor Cuevas", font=("Calibri",12,"bold"), bg='#00417e', fg="white", width=25)
+  atbatLabel.grid(row=5, column=0, columnspan=5)
 
   #Bases
   Bases="Cuadro0"
@@ -182,7 +187,11 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     HitsAway=0
     global HitsHome
     HitsHome=0
-
+    #at bat
+    global atbatAway
+    atbatAway=0
+    global atbatHome
+    atbatHome=0
     #Errors
     global ErrorsAway
     ErrorsAway=0
@@ -207,7 +216,7 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     #abrimos la ventana para seleccionar equipos
     SelectTeamScreen=Toplevel()
     SelectTeamScreen.resizable(0,0) 
-    SelectTeamScreen.geometry("150x150")
+    SelectTeamScreen.geometry("150x150+400+200")
     SelectTeamScreen.configure(bg='white')
     SelectTeamScreen.iconbitmap("logo/Barcelona.ico")
     
@@ -221,7 +230,81 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     Button(SelectTeamScreen,text="Confirmar equipos", command=confirmteam).grid(row=2,column=0, columnspan=2, padx=2, pady=5)
 
 def lineUp(): #Te deja añadir lineUp de los equipos
-  print("TBC")
+  def confirmlineup():
+    i=0
+    for entries in EntryAwayNumlist:
+      AwayNum[i]=entries.get()
+      i=i+1
+    i=0
+    for entries in EntryAwayNamlist:
+      AwayName[i]=entries.get()
+      i=i+1
+    i=0
+    for entries in EntryHomeNumlist:
+      HomeNum[i]=entries.get()
+      i=i+1
+    i=0
+    for entries in EntryHomeNamlist:
+      HomeName[i]=entries.get()
+      i=i+1
+
+    #Actualizamos el current at Bat del equipo
+    if topbot.get()==0:
+      textatbat="A/B: " + str(atbatAway+1) +"º #"+ str(AwayNum[atbatAway]) + " "+ AwayName[atbatAway]
+      atbatLabel.config(text = textatbat)
+    else:
+      textatbat="A/B: " + str(atbatHome+1) +"º #"+ str(HomeNum[atbatHome]) + " "+ HomeName[atbatHome]
+      atbatLabel.config(text = textatbat)
+
+    LineUpScreen.destroy()
+
+  #abrimos la ventana para seleccionar LineUp
+  LineUpScreen=Toplevel()
+  LineUpScreen.resizable(0,0) 
+  LineUpScreen.geometry("350x400+400+200")
+  LineUpScreen.configure(bg='white')
+  LineUpScreen.iconbitmap("logo/Barcelona.ico")
+
+  Label(LineUpScreen,text="Away",bg="white").grid(row=0,column=1, columnspan=2, padx=2, pady=5)
+  Label(LineUpScreen,text="Num",bg="white").grid(row=1,column=1, pady=5)
+  Label(LineUpScreen,text="Nombre",bg="white").grid(row=1,column=2, pady=5)
+  Label(LineUpScreen,text="      ",bg="white").grid(row=1,column=3, pady=5)
+  Label(LineUpScreen,text="Home",bg="white").grid(row=0,column=4, columnspan=2, padx=2, pady=5)
+  Label(LineUpScreen,text="Num",bg="white").grid(row=1,column=4, pady=5)
+  Label(LineUpScreen,text="Nombre",bg="white").grid(row=1,column=5, pady=5)
+  
+  EntryAwayNumlist=[]
+  EntryAwayNamlist=[]
+  EntryHomeNumlist=[]
+  EntryHomeNamlist=[]
+  for i in range(9):
+    Label(LineUpScreen,text=i+1,bg="white").grid(row=i+2,column=0, pady=5)
+    #Away numbers
+    EntryAwayNum=Entry(LineUpScreen, bg="white", width=2)
+    EntryAwayNum.delete(0,"end")
+    EntryAwayNum.insert(0, AwayNum[i])
+    EntryAwayNum.grid(row=i+2,column=1, pady=5)
+    EntryAwayNumlist.append(EntryAwayNum)
+    #Away names
+    EntryAwayNam=Entry(LineUpScreen, bg="white", width=15)
+    EntryAwayNam.delete(0,"end")
+    EntryAwayNam.insert(0, AwayName[i])
+    EntryAwayNam.grid(row=i+2,column=2, pady=5)
+    EntryAwayNamlist.append(EntryAwayNam)
+    #Home numbers
+    EntryHomeNum=Entry(LineUpScreen, bg="white", width=2)
+    EntryHomeNum.delete(0,"end")
+    EntryHomeNum.insert(0, HomeNum[i])
+    EntryHomeNum.grid(row=i+2,column=4, pady=5)
+    EntryHomeNumlist.append(EntryHomeNum)
+    #Home names
+    EntryHomeNam=Entry(LineUpScreen, bg="white", width=15)
+    EntryHomeNam.delete(0,"end")
+    EntryHomeNam.insert(0, HomeName[i])
+    EntryHomeNam.grid(row=i+2,column=5, pady=5)
+    EntryHomeNamlist.append(EntryHomeNam)
+
+  Button(LineUpScreen,text="Confirmar line up", command=confirmlineup).grid(row=13,column=0, columnspan=5, padx=2, pady=5)
 
 def addOut(): #añade o quita Outs
   global Out
@@ -232,17 +315,19 @@ def addOut(): #añade o quita Outs
       if response==1:
         Out=0
         if topbot.get()==0: #Si estamos en top pasamos a bot
+          atBat()
           topbot.set(1)
           inning()
         else: #si estamos en bot pasamos a siguiente imning
+          atBat()
           topbot.set(0) 
           nextInning=currentInning.get()+1
           currentInning.set(nextInning)
           inning()
-
       else:
         Out=2
     else:
+      atBat()
       Out=Out+1
   else:
     if Out ==0:
@@ -278,6 +363,7 @@ def addBola(): #añade o quita Bolas
   if incdec.get()==1:
     if Bola ==3:
       resetStrikeBola()
+      atBat()
       #comprobaremos las bases para añadir corredores para añadir corredores
       if Primera.get()==0 and Segunda.get()==0:
         Primera.set(1)
@@ -285,6 +371,8 @@ def addBola(): #añade o quita Bolas
         Segunda.set(1)
       elif Primera.get()==1 and Segunda.get()==1 and Tercera.get()==0:
         Tercera.set(1)
+      elif Primera.get()==1 and Segunda.get()==1 and Tercera.get()==1:
+        addRun()
       bases()
     else:
       Bola=Bola+1
@@ -321,22 +409,21 @@ def addStrike():
   imgStrike=ImageTk.PhotoImage(imgStrike)
   Label(ScoreBoardScreen,image=imgStrike, bg='white').grid(row=3, column=9)
 
-def addRunAway():
+def addRun():
   global RunsAway
-  global incdec
-  if incdec.get()==1:
-    RunsAway=RunsAway+1
-  else:
-    RunsAway=RunsAway-1
-  Label(frameAway,text=RunsAway, font=("Calibri",12,"bold"), bg='#00417e', fg="white", width=2).grid(row=0, column=2, rowspan=2)
-  
-def addRunHome(): 
   global RunsHome
   global incdec
   if incdec.get()==1:
-    RunsHome=RunsHome+1
+    if topbot.get()==0: #La carrera sumara al visitatnte
+      RunsAway=RunsAway+1
+    else:
+      RunsHome=RunsHome+1
   else:
-    RunsHome=RunsHome-1
+    if topbot.get()==0: #La carrera restara al visitatnte
+      RunsAway=RunsAway-1
+    else:
+      RunsHome=RunsHome-1
+  Label(frameAway,text=RunsAway, font=("Calibri",12,"bold"), bg='#00417e', fg="white", width=2).grid(row=0, column=2, rowspan=2)
   Label(frameHome,text=RunsHome, font=("Calibri",12,"bold"), bg="#a50032", fg="white", width=2).grid(row=0, column=2, rowspan=2)
 
 def bases(): #Actualizamos las bases
@@ -364,10 +451,16 @@ def inning():
     innImg=Image.open("img/Arrow top.png")
     innImg=innImg.resize((15,15),Image.ANTIALIAS)
     innImg=ImageTk.PhotoImage(innImg)
+    #cambiamos el at bat
+    textatbat="A/B: " + str(atbatAway+1) +"º #"+ str(AwayNum[atbatAway]) + " "+ AwayName[atbatAway]
+    atbatLabel.config(text = textatbat)
   else:
     innImg=Image.open("img/Arrow Bot.png")
     innImg=innImg.resize((15,15),Image.ANTIALIAS)
     innImg=ImageTk.PhotoImage(innImg)
+    #cambiamos el at bat
+    textatbat="A/B: " + str(atbatHome+1) +"º #"+ str(HomeNum[atbatHome]) + " "+ HomeName[atbatHome]
+    atbatLabel.config(text = textatbat)
 
   actualInn=currentInning.get()
   
@@ -378,6 +471,7 @@ def hit():
   global hitgif
   global HitsAway
   global HitsHome
+
   if incdec.get()==1: #Función de incrementar 
     for i in range(2): #Animación de hit     
       for j in range (16):
@@ -410,8 +504,11 @@ def hit():
       Label(ScoreBoardScreen,text=HitsHome, bg='white', font=("Calibri",12)).grid(row=2, column=4, columnspan=2)
       ScoreBoardScreen.update()
       time.sleep(2.0)
-  
+    BlankImg=Image.open("img/Blank.png")
+    BlankImg=ImageTk.PhotoImage(BlankImg)
+    Label(ScoreBoardScreen,image=BlankImg, bg='white').grid(row=0, column=4, rowspan=4, columnspan=2)
     bases() #actualizamos las bases
+    atBat() #cambiamos el at bat
   else: #Función de decrementar
     if topbot.get()==0: #el hit mostrará el equipo que lo ha dado dependiendo si estamos en bot o top inning
       if HitsAway==0:
@@ -430,7 +527,6 @@ def error():
   global ErrorsAway
   global ErrorsHome
   if incdec.get()==1: #Función de incrementar
-    
     for j in range (7):
         errorgif=Image.open("img/Error/error"+str(j)+".png")
         errorgif=ImageTk.PhotoImage(errorgif)
@@ -478,6 +574,9 @@ def error():
       ScoreBoardScreen.update()
       time.sleep(2.0)
 
+    BlankImg=Image.open("img/Blank.png")
+    BlankImg=ImageTk.PhotoImage(BlankImg)
+    Label(ScoreBoardScreen,image=BlankImg, bg='white').grid(row=0, column=4, rowspan=4, columnspan=2)
     bases() #actualizamos las bases
 
   else: #Función de decrementar
@@ -491,6 +590,25 @@ def error():
         ErrorsHome=0
       else:
         ErrorsHome=ErrorsHome-1
+
+def atBat(): #Pasa al siguiente bateador, mirando quien esta batenado si home o away
+  global atbatAway
+  global atbatHome
+  
+  if topbot.get()==0: #el hit mostrará el equipo que lo ha dado dependiendo si estamos en bot o top inning
+    if atbatAway==8:
+      atbatAway=atbatAway=0
+    else:
+      atbatAway=atbatAway+1
+    textatbat="A/B: " + str(atbatAway+1) +"º #"+ str(AwayNum[atbatAway]) + " "+ AwayName[atbatAway]
+    atbatLabel.config(text = textatbat)
+  else:
+    if atbatHome==8:
+      atbatHome=atbatHome=0
+    else:
+      atbatHome=atbatHome+1
+    textatbat="A/B: " + str(atbatHome+1) +"º #"+ str(HomeNum[atbatHome]) + " "+ HomeName[atbatHome]
+    atbatLabel.config(text = textatbat)
 
 #funciones del menu bar de la root:
 def exitMsg(): #Código del botón del Menu File->Exit
@@ -506,7 +624,17 @@ root=Tk()
 root.title("CBS Barcelona Scoreboard")
 root.iconbitmap("logo/Barcelona.ico")
 root.resizable(0,0) #Ancho, Alto (1 se puede 0 no se puede)
-root.geometry("350x400")
+root.geometry("350x400+700+300")
+
+#Listas de bateadores
+global AwayNum
+AwayNum=[1,2,3,4,5,6,7,8,9]
+global AwayName
+AwayName=["","","","","","","","",""]
+global HomeNum
+HomeNum=[1,2,3,4,5,6,7,8,9]
+global HomeName
+HomeName=["","","","","","","","",""]
 
 #Menu Bar
 barraMenu=Menu(root)
@@ -530,13 +658,10 @@ Button(root,text="Strike", command=addStrike, width=7).grid(row=1,column=0, padx
 Button(root,text="Bola", command=addBola , width=7).grid(row=1,column=1, padx=5, pady=10)
 Button(root,text="Out", command=addOut, width=7).grid(row=1,column=2, padx=5, pady=10)
 
-#botones hit/error
+#botones hit/error/run
 Button(root,text="Hit", command=hit, width=7).grid(row=2,column=0, padx=5, pady=15)
 Button(root,text="Error", command=error, width=7).grid(row=2,column=1, padx=5, pady=15)
-
-#Botones Carreras
-Button(root,text="Run Away", command=addRunAway, width=7).grid(row=3,column=0, padx=5, pady=10)
-Button(root,text="Run Local", command=addRunHome, width=7).grid(row=3,column=1, padx=5, pady=10)
+Button(root,text="Run", command=addRun, width=7).grid(row=2,column=2, padx=5, pady=10)
 
 #Corredores en las bases
 Primera=IntVar()
@@ -548,23 +673,29 @@ Checkbutton(root,text="Segunda", variable=Segunda).grid(row=4,column=1, padx=5, 
 Checkbutton(root,text="Tercera", variable=Tercera).grid(row=4,column=2, padx=5, pady=10)
 Button(root,text="Update Bases", command=bases).grid(row=4,column=3, padx=2, pady=10)
 
-ttk.Separator(root,orient='horizontal').grid(row=5,column=0, sticky="ew", columnspan=4)
+#Lineup
+Button(root,text="Line Up", command=lineUp, width=7).grid(row=5,column=0, padx=5, pady=10)
+
+
+
+ttk.Separator(root,orient='horizontal').grid(row=6,column=0, sticky="ew", columnspan=4)
 
 #inning
 currentInning=IntVar()
 currentInning.set(1)
-OptionMenu(root,currentInning,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20).grid(row=6,column=0, padx=5, pady=10)
+OptionMenu(root,currentInning,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20).grid(row=7,column=0, padx=5, pady=10)
 
 topbot=IntVar() #0 en caso de Away, 1 en caso de Home
-Radiobutton(root, text="Top", variable=topbot, value=0).grid(row=6,column=1, padx=2, pady=10) 
-Radiobutton(root, text="Bot", variable=topbot, value=1).grid(row=6,column=2, padx=2, pady=10)
-Button(root,text="Update Inning", command=inning).grid(row=6,column=3, padx=2, pady=10)
+Radiobutton(root, text="Top", variable=topbot, value=0).grid(row=7,column=1, padx=2, pady=10) 
+Radiobutton(root, text="Bot", variable=topbot, value=1).grid(row=7,column=2, padx=2, pady=10)
+Button(root,text="Update Inning", command=inning).grid(row=7,column=3, padx=2, pady=10)
 
 #Botores para incrementar o reducir
 incdec=IntVar()
 incdec.set(1) #Marcamos Increment por defecto al ejecutar
-Radiobutton(root, text="Increment", variable=incdec, value=1).grid(row=7,column=0, padx=2, pady=10)
-Radiobutton(root, text="Descent", variable=incdec, value=0).grid(row=7,column=1, padx=2, pady=10)
+Radiobutton(root, text="Increment", variable=incdec, value=1).grid(row=8,column=0, padx=2, pady=10)
+Radiobutton(root, text="Descent", variable=incdec, value=0).grid(row=8,column=1, padx=2, pady=10)
+
 
 #Lanzamos pantalla del ScoreBoard
 ScoreBoardScreen=""

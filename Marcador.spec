@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['Marcador.py'],
-             pathex=['C:\\Users\\VÍCTOR\\Desktop\\Programación\\Marcador'],
+             pathex=['C:\\Users\\Usuario\\Dropbox\\Programas\\Marcador'],
              binaries=[],
              datas=[],
              hiddenimports=[],
