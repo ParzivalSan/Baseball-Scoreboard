@@ -10,6 +10,7 @@ def scoreboard(): #ventana del scoreboard, lo que se muestra en la retrasmisión
   ScoreBoardScreen=Toplevel()
   ScoreBoardScreen.resizable(0,0) 
   ScoreBoardScreen.geometry("314x125+50+50")
+  ScoreBoardScreen.title("CBS Barcelona Scoreboard")
   ScoreBoardScreen.configure(bg='white')
   ScoreBoardScreen.iconbitmap("logo/Barcelona.ico")
   #ScoreBoardScreen.overrideredirect(True) #Eliminamos el title bar
@@ -399,6 +400,7 @@ def hitterOverview(): #se te abre ventana con la imagen del bateador
   global hitterOverviewScreen
   hitterOverviewScreen=Toplevel()
   hitterOverviewScreen.resizable(0,0) 
+  hitterOverviewScreen.title("CBSB - Bateador")
   hitterOverviewScreen.geometry("900x172+50+490")
   hitterOverviewScreen.configure(bg='white')
   hitterOverviewScreen.iconbitmap("logo/Barcelona.ico")
@@ -435,6 +437,7 @@ def marcadorInnings(): #abre la ventana del marcador por innings
   global marcadorInningsScreen
   marcadorInningsScreen=Toplevel()
   marcadorInningsScreen.resizable(0,0) 
+  marcadorInningsScreen.title("CBSB - Marcador innings")
   marcadorInningsScreen.geometry("500x70+50+700")
   marcadorInningsScreen.configure(bg='white')
   marcadorInningsScreen.iconbitmap("logo/Barcelona.ico")
@@ -923,7 +926,7 @@ def on_closing():
     
    
 root=Tk()
-root.title("CBS Barcelona Scoreboard")
+root.title("CBSB - Control")
 root.iconbitmap("logo/Barcelona.ico")
 root.resizable(0,0) #Ancho, Alto (1 se puede 0 no se puede)
 root.geometry("350x400")
