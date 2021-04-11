@@ -9,7 +9,7 @@ def scoreboard(): #ventana del scoreboard, lo que se muestra en la retrasmisión
   global ScoreBoardScreen
   ScoreBoardScreen=Toplevel()
   ScoreBoardScreen.resizable(0,0) 
-  ScoreBoardScreen.geometry("314x125+50+50")
+  ScoreBoardScreen.geometry("314x124+50+50")
   ScoreBoardScreen.title("CBS Barcelona Scoreboard")
   ScoreBoardScreen.configure(bg='white')
   ScoreBoardScreen.iconbitmap("logo/Barcelona.ico")
