@@ -80,17 +80,17 @@ def scoreboard(): #ventana del scoreboard, lo que se muestra en la retrasmisión
   Strike=0
 
   global imgOut
-  imgOut=Image.open("img/Out"+ str(Out) + ".jpg")
+  imgOut=Image.open("img/Out"+ str(Out) + ".png")
   imgOut=imgOut.resize((30,15),Image.ANTIALIAS)
   imgOut=ImageTk.PhotoImage(imgOut)
 
   global imgBola
-  imgBola=Image.open("img/Bola"+ str(Bola) + ".jpg")
+  imgBola=Image.open("img/Bola"+ str(Bola) + ".png")
   imgBola=imgBola.resize((40,15),Image.ANTIALIAS)
   imgBola=ImageTk.PhotoImage(imgBola)
 
   global imgStrike
-  imgStrike=Image.open("img/Strike"+ str(Strike) + ".jpg")
+  imgStrike=Image.open("img/Strike"+ str(Strike) + ".png")
   imgStrike=imgStrike.resize((30,15),Image.ANTIALIAS)
   imgStrike=ImageTk.PhotoImage(imgStrike)
 
@@ -105,6 +105,8 @@ def scoreboard(): #ventana del scoreboard, lo que se muestra en la retrasmisión
   imgStrikeLabel=Label(ScoreBoardScreen,image=imgStrike, bg='white')
   imgStrikeLabel.grid(row=3, column=8)
 
+  ScoreBoardScreen.protocol("WM_DELETE_WINDOW", on_closing)
+
 def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de seleccionar pedira si quieres eliminar todos los datos del marcador
   def confirmteam(): #función del botón confirm team
     #AWAY
@@ -114,50 +116,62 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     global homeTeamName
     if AwayTeam.get()=="Antorcha":
       awayTeamName=AwayTeam.get()
+      awayTeamLongName="CBS Antorcha"
       shortname="ANT"
       logo="logo/Antorcha.png"
     elif AwayTeam.get()=="Astros":
       awayTeamName=AwayTeam.get()
+      awayTeamLongName="CB Astros Valencia"
       shortname="AST"
       logo="logo/astros.png"
     elif AwayTeam.get()=="Barcelona":
       awayTeamName=AwayTeam.get()
+      awayTeamLongName="CBS Barcelona"
       shortname="BCN"
       logo="logo/Barcelona.png"
     elif AwayTeam.get()=="Gava":
       awayTeamName=AwayTeam.get()
+      awayTeamLongName="CBS Gava"
       shortname="GAV"
       logo="logo/Gava.png"
     elif AwayTeam.get()=="Marlins":
       awayTeamName=AwayTeam.get()
+      awayTeamLongName="Tenerife Marlins PC"
       shortname="MAR"
       logo="logo/marlins.png"
     elif AwayTeam.get()=="Miralbueno":
       awayTeamName=AwayTeam.get()
+      awayTeamLongName="CBS Miralbueno"
       shortname="MIR"
       logo="logo/miralbueno.png"
     elif AwayTeam.get()=="Navarra":
       awayTeamName=AwayTeam.get()
+      awayTeamLongName="Béisbol Navarra"
       shortname="NAV"
       logo="logo/Navarra.png"
     elif AwayTeam.get()=="Rivas":
       awayTeamName=AwayTeam.get()
+      awayTeamLongName="CBS Rivas"
       shortname="RIV"
       logo="logo/Rivas.png"
     elif AwayTeam.get()=="San Inazio":
       awayTeamName=AwayTeam.get()
+      awayTeamLongName=HomeTeam.get()
       shortname="SnI"
       logo="logo/san_inazio.png"
     elif AwayTeam.get()=="Sant Boi":
       awayTeamName=AwayTeam.get()
+      awayTeamLongName="CBS Sant Boi"
       shortname="StB"
       logo="logo/santboi.png"
     elif AwayTeam.get()=="Toros":
       awayTeamName=AwayTeam.get()
+      awayTeamLongName="CBS Toros"
       shortname="TOR"
       logo="logo/toros.png"
     elif AwayTeam.get()=="Viladecans":
       awayTeamName=AwayTeam.get()
+      awayTeamLongName="CB Viladecans"
       shortname="VIL"
       logo="logo/viladecans.png"
     logoAway=Image.open(logo)
@@ -165,56 +179,68 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     logoAwayRez=ImageTk.PhotoImage(logoAwayRez)
     Label(frameAway,image=logoAwayRez, bg="#00417e").grid(row=0, column=0, padx=1, pady=5)
     Label(frameAway,text=shortname, font=("Calibri",12,"bold"), bg="#00417e", fg='white', width=4).grid(row=0, column=1, padx=1,pady=1)
-
+    
     #HOME
     global logoHome
     global logoHomeRez
     if HomeTeam.get()=="Antorcha":
       homeTeamName=HomeTeam.get()
+      homeTeamLongName="CBS Antorcha"
       shortname="ANT"
       logo="logo/Antorcha.png"
     elif HomeTeam.get()=="Astros":
       homeTeamName=HomeTeam.get()
+      homeTeamLongName="CB Astros Valencia"
       shortname="AST"
       logo="logo/astros.png"
     elif HomeTeam.get()=="Barcelona":
       homeTeamName=HomeTeam.get()
+      homeTeamLongName="CBS Barcelona"
       shortname="BCN"
       logo="logo/Barcelona.png"
     elif HomeTeam.get()=="Gava":
       homeTeamName=HomeTeam.get()
+      homeTeamLongName="CBS Gava"
       shortname="GAV"
       logo="logo/Gava.png"
     elif HomeTeam.get()=="Marlins":
       homeTeamName=HomeTeam.get()
+      homeTeamLongName="Tenerife Marlins PC"
       shortname="MAR"
       logo="logo/marlins.png"
     elif HomeTeam.get()=="Miralbueno":
       homeTeamName=HomeTeam.get()
+      homeTeamLongName="CBS Miralbueno"
       shortname="MIR"
       logo="logo/miralbueno.png"
     elif HomeTeam.get()=="Navarra":
       homeTeamName=HomeTeam.get()
+      homeTeamLongName="Béisbol Navarra"
       shortname="NAV"
       logo="logo/Navarra.png"
     elif HomeTeam.get()=="Rivas":
       homeTeamName=HomeTeam.get()
+      homeTeamLongName="CBS Rivas"
       shortname="RIV"
       logo="logo/Rivas.png"
     elif HomeTeam.get()=="San Inazio":
       homeTeamName=HomeTeam.get()
+      homeTeamLongName=HomeTeam.get()
       shortname="SnI"
       logo="logo/san_inazio.png"
     elif HomeTeam.get()=="Sant Boi":
       homeTeamName=HomeTeam.get()
+      homeTeamLongName="CBS Viladecans"
       shortname="StB"
       logo="logo/santboi.png"
     elif HomeTeam.get()=="Toros":
       homeTeamName=HomeTeam.get()
+      homeTeamLongName="CBS Toros"
       shortname="TOR"
       logo="logo/toros.png"
     elif HomeTeam.get()=="Viladecans":
       homeTeamName=HomeTeam.get()
+      homeTeamLongName="CB Viladecans"
       shortname="VIL"
       logo="logo/viladecans.png"
     logoHome=Image.open(logo)
@@ -223,7 +249,12 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     Label(frameHome,image=logoHomeRez, bg='#a50032').grid(row=0, column=0, padx=1, pady=5)
     Label(frameHome,text=shortname, font=("Calibri",12,"bold"), bg='#a50032', fg='white', width=4).grid(row=0, column=1,padx=1,pady=1)
 
+    marcadorInningsAwayTeam.config(text=awayTeamLongName)
+    marcadorInningsHomeTeam.config(text=homeTeamLongName)
+
+    updateHitterOverview()
     SelectTeamScreen.destroy()
+
   
   valor=messagebox.askquestion("Selección equipos","Esta acción pondrá el marcador a cero. Desea continuar?")
   if valor=="yes":
@@ -238,6 +269,10 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     atbatAway=0
     global atbatHome
     atbatHome=0
+    #At Bat
+    textatbat="A/B: " + str(atbatAway+1) +"º #"+ str(AwayNum[atbatAway]) + " "+ AwayName[atbatAway]
+    atbatLabel.config(text = textatbat)
+
     #Errors
     global ErrorsAway
     ErrorsAway=0
@@ -261,7 +296,7 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
 
     #strike/bolas/outs
     global imgOut
-    imgOut=Image.open("img/Out0.jpg")
+    imgOut=Image.open("img/Out0.png")
     imgOut=imgOut.resize((30,15),Image.ANTIALIAS)
     imgOut=ImageTk.PhotoImage(imgOut)
     imgOutLabel.config(image=imgOut)
@@ -282,8 +317,7 @@ def selectteam(): #Se abre una nueva ventana para seleccionar equipo. Antes de s
     Label(SelectTeamScreen,text="Home", bg='white').grid(row=1, column=0,padx=2, pady=5)
     OptionMenu(SelectTeamScreen,HomeTeam,"Antorcha","Astros","Barcelona","Marlins","Miralbueno","Navarra","Rivas","San Inazio","Sant Boi", "Viladecans").grid(row=1,column=1, padx=2, pady=5)
     Button(SelectTeamScreen,text="Confirmar equipos", command=confirmteam).grid(row=2,column=0, columnspan=2, padx=2, pady=5)
-    updateHitterOverview()
-
+    
 def lineUp(): #Te deja añadir lineUp de los equipos
   def confirmlineup():
     i=0
@@ -378,6 +412,8 @@ def hitterOverview(): #se te abre ventana con la imagen del bateador
   imgHitterLabel=Label(hitterOverviewScreen,image=imgHitter, bg='white')
   imgHitterLabel.grid(row=0, column=0)
 
+  hitterOverviewScreen.protocol("WM_DELETE_WINDOW", on_closing)
+
 def updateHitterOverview(): #actualiza la ventana con la imagen del bateador
   global imgHitter
   try:
@@ -399,7 +435,7 @@ def marcadorInnings(): #abre la ventana del marcador por innings
   global marcadorInningsScreen
   marcadorInningsScreen=Toplevel()
   marcadorInningsScreen.resizable(0,0) 
-  marcadorInningsScreen.geometry("500x90+50+700")
+  marcadorInningsScreen.geometry("500x70+50+700")
   marcadorInningsScreen.configure(bg='white')
   marcadorInningsScreen.iconbitmap("logo/Barcelona.ico")
 
@@ -418,23 +454,23 @@ def marcadorInnings(): #abre la ventana del marcador por innings
 
   global marcadorInningsAwayRuns
   marcadorInningsAwayRuns=Label(marcadorInningsScreen,text="0", bg='white', font=("Calibri",12,"bold"), borderwidth=1, relief="solid", width=3)
-  marcadorInningsAwayRuns.grid(row=2, column=10)
+  marcadorInningsAwayRuns.grid(row=1, column=10)
   global marcadorInningsAwayHits
   marcadorInningsAwayHits=Label(marcadorInningsScreen,text="0", bg='white', font=("Calibri",12,"bold"), borderwidth=1, relief="solid", width=3)
-  marcadorInningsAwayHits.grid(row=2, column=11)
+  marcadorInningsAwayHits.grid(row=1, column=11)
   global marcadorInningsAwayError
   marcadorInningsAwayError=Label(marcadorInningsScreen,text="0", bg='white', font=("Calibri",12,"bold"), borderwidth=1, relief="solid", width=3)
-  marcadorInningsAwayError.grid(row=2, column=12)
+  marcadorInningsAwayError.grid(row=1, column=12)
 
   global marcadorInningsHomeRuns
   marcadorInningsHomeRuns=Label(marcadorInningsScreen,text="0", bg='white', font=("Calibri",12,"bold"), borderwidth=1, relief="solid", width=3)
-  marcadorInningsHomeRuns.grid(row=1, column=10)
+  marcadorInningsHomeRuns.grid(row=2, column=10)
   global marcadorInningsHomeHits
   marcadorInningsHomeHits=Label(marcadorInningsScreen,text="0", bg='white', font=("Calibri",12,"bold"), borderwidth=1, relief="solid", width=3)
-  marcadorInningsHomeHits.grid(row=1, column=11)
+  marcadorInningsHomeHits.grid(row=2, column=11)
   global marcadorInningsHomeError
   marcadorInningsHomeError=Label(marcadorInningsScreen,text="0", bg='white', font=("Calibri",12,"bold"), borderwidth=1, relief="solid", width=3)
-  marcadorInningsHomeError.grid(row=1, column=12)
+  marcadorInningsHomeError.grid(row=2, column=12)
 
   global marcadorInningsAway1
   marcadorInningsAway1=Label(marcadorInningsScreen,text="", bg='white', font=("Calibri",12), borderwidth=1, relief="solid", width=3)
@@ -491,10 +527,9 @@ def marcadorInnings(): #abre la ventana del marcador por innings
   global marcadorInningsHome9
   marcadorInningsHome9=Label(marcadorInningsScreen,text="", bg='white', font=("Calibri",12), borderwidth=1, relief="solid", width=3)
   marcadorInningsHome9.grid(row=2, column=9)
+
+  marcadorInningsScreen.protocol("WM_DELETE_WINDOW", on_closing)
   
-
-
-
 def addOut(): #añade o quita Outs
   global Out
   global incdec
@@ -524,7 +559,7 @@ def addOut(): #añade o quita Outs
     else:
       Out=Out-1
   global imgOut
-  imgOut=Image.open("img/Out"+ str(Out) + ".jpg")
+  imgOut=Image.open("img/Out"+ str(Out) + ".png")
   imgOut=imgOut.resize((30,15),Image.ANTIALIAS)
   imgOut=ImageTk.PhotoImage(imgOut)
   Label(ScoreBoardScreen,image=imgOut, bg='white').grid(row=1, column=9)
@@ -537,12 +572,12 @@ def resetStrikeBola():#ponemos a 0 las bolas y los strikes
   global Bola
   Bola=0
   global imgBola
-  imgBola=Image.open("img/Bola0.jpg")
+  imgBola=Image.open("img/Bola0.png")
   imgBola=imgBola.resize((40,15),Image.ANTIALIAS)
   imgBola=ImageTk.PhotoImage(imgBola)
 
   global imgStrike
-  imgStrike=Image.open("img/Strike0.jpg")
+  imgStrike=Image.open("img/Strike0.png")
   imgStrike=imgStrike.resize((30,15),Image.ANTIALIAS)
   imgStrike=ImageTk.PhotoImage(imgStrike)
 
@@ -575,7 +610,7 @@ def addBola(): #añade o quita Bolas
       Bola=Bola-1
 
   global imgBola
-  imgBola=Image.open("img/Bola"+ str(Bola) + ".jpg")
+  imgBola=Image.open("img/Bola"+ str(Bola) + ".png")
   imgBola=imgBola.resize((40,15),Image.ANTIALIAS)
   imgBola=ImageTk.PhotoImage(imgBola)
  
@@ -597,7 +632,7 @@ def addStrike():
       Strike=Strike-1
 
   global imgStrike
-  imgStrike=Image.open("img/Strike"+ str(Strike) + ".jpg")
+  imgStrike=Image.open("img/Strike"+ str(Strike) + ".png")
   imgStrike=imgStrike.resize((30,15),Image.ANTIALIAS)
   imgStrike=ImageTk.PhotoImage(imgStrike)
   imgStrikeLabel.config(image=imgStrike)
@@ -609,16 +644,44 @@ def addRun():
   if incdec.get()==1:
     if topbot.get()==0: #La carrera sumara al visitante
       RunsAway=RunsAway+1
+      if currentInning.get()<10:
+        variable="marcadorInningsAway"+str(currentInning.get())
+        if globals()[variable].cget("text")=="":
+          globals()[variable].config(text="1")
+        else:
+          globals()[variable].config(text=str(int(globals()[variable].cget("text"))+1))
     else:
       RunsHome=RunsHome+1
+      if currentInning.get()<10:
+        variable="marcadorInningsHome"+str(currentInning.get())
+        if globals()[variable].cget("text")=="":
+          globals()[variable].config(text="1")
+        else:
+          globals()[variable].config(text=str(int(globals()[variable].cget("text"))+1))
   else:
     if topbot.get()==0: #La carrera restara al visitante
       RunsAway=RunsAway-1
+      if currentInning.get()<10:
+        variable="marcadorInningsAway"+str(currentInning.get())
+        if globals()[variable].cget("text")=="":
+          globals()[variable].config(text="")
+        else:
+          globals()[variable].config(text=str(int(globals()[variable].cget("text"))-1))
     else:
       RunsHome=RunsHome-1
+      if currentInning.get()<10:
+        variable="marcadorInningsHome"+str(currentInning.get())
+        if globals()[variable].cget("text")=="":
+          globals()[variable].config(text="")
+        else:
+          globals()[variable].config(text=str(int(globals()[variable].cget("text"))-1))
+    
   RunsAwayLabel.config(text=str(RunsAway))
   RunsHomeLabel.config(text=str(RunsHome))
   ScoreBoardScreen.update()
+  marcadorInningsAwayRuns.config(text=str(RunsAway))
+  marcadorInningsHomeRuns.config(text=str(RunsHome))
+  
 
 def bases(): #Actualizamos las bases
   global imgBases
@@ -708,6 +771,7 @@ def hit():
     BotLabel.destroy()
     bases() #actualizamos las bases
     atBat() #cambiamos el at bat
+    
   else: #Función de decrementar
     if topbot.get()==0: #el hit mostrará el equipo que lo ha dado dependiendo si estamos en bot o top inning
       if HitsAway==0:
@@ -719,6 +783,10 @@ def hit():
         HitsHome=0
       else:
         HitsHome=HitsHome-1
+  
+  #Actualizamos el marcador por innings
+  marcadorInningsAwayHits.config(text=HitsAway)
+  marcadorInningsHomeHits.config(text=HitsHome)
 def error():
   global errorgif
   global img1
@@ -778,8 +846,12 @@ def error():
 
     TopLabel.destroy()
     BotLabel.destroy()
-    atBat() #cambiamos el at bat
+    
     bases() #actualizamos las bases
+
+    valor=messagebox.askquestion("Error","Siguiente bateador?")
+    if valor=="yes":
+      atBat() #cambiamos el at bat
 
   else: #Función de decrementar
     if topbot.get()==1: #el hit mostrará el equipo que lo ha dado dependiendo si estamos en bot o top inning
@@ -792,25 +864,46 @@ def error():
         ErrorsHome=0
       else:
         ErrorsHome=ErrorsHome-1
+  
+  #Actualizamos el marcador por innings
+  marcadorInningsAwayError.config(text=ErrorsAway)
+  marcadorInningsHomeError.config(text=ErrorsHome)
 
 def atBat(): #Pasa al siguiente bateador, mirando quien esta batenado si home o away
   global atbatAway
   global atbatHome
   
-  if topbot.get()==0: #el hit mostrará el equipo que lo ha dado dependiendo si estamos en bot o top inning
-    if atbatAway==8:
-      atbatAway=atbatAway=0
+  if incdec.get()==1: #Función de incrementar 
+    if topbot.get()==0: #el hit mostrará el equipo que lo ha dado dependiendo si estamos en bot o top inning
+      if atbatAway==8:
+        atbatAway=0
+      else:
+        atbatAway=atbatAway+1
+      textatbat="A/B: " + str(atbatAway+1) +"º #"+ str(AwayNum[atbatAway]) + " "+ AwayName[atbatAway]
+      atbatLabel.config(text = textatbat)
     else:
-      atbatAway=atbatAway+1
-    textatbat="A/B: " + str(atbatAway+1) +"º #"+ str(AwayNum[atbatAway]) + " "+ AwayName[atbatAway]
-    atbatLabel.config(text = textatbat)
+      if atbatHome==8:
+        atbatHome=0
+      else:
+        atbatHome=atbatHome+1
+      textatbat="A/B: " + str(atbatHome+1) +"º #"+ str(HomeNum[atbatHome]) + " "+ HomeName[atbatHome]
+      atbatLabel.config(text = textatbat)
   else:
-    if atbatHome==8:
-      atbatHome=atbatHome=0
+    if topbot.get()==0: #el hit mostrará el equipo que lo ha dado dependiendo si estamos en bot o top inning
+      if atbatAway==0:
+        atbatAway=atbatAway=8
+      else:
+        atbatAway=atbatAway-1
+      textatbat="A/B: " + str(atbatAway+1) +"º #"+ str(AwayNum[atbatAway]) + " "+ AwayName[atbatAway]
+      atbatLabel.config(text = textatbat)
     else:
-      atbatHome=atbatHome+1
-    textatbat="A/B: " + str(atbatHome+1) +"º #"+ str(HomeNum[atbatHome]) + " "+ HomeName[atbatHome]
-    atbatLabel.config(text = textatbat)
+      if atbatHome==0:
+        atbatHome=8
+      else:
+        atbatHome=atbatHome-1
+      textatbat="A/B: " + str(atbatHome+1) +"º #"+ str(HomeNum[atbatHome]) + " "+ HomeName[atbatHome]
+      atbatLabel.config(text = textatbat)
+
   updateHitterOverview()
 
 #funciones del menu bar de la root:
@@ -823,6 +916,12 @@ def exitMsg(): #Código del botón del Menu File->Exit
 def aboutMsg():
   messagebox.showinfo("About","Creado para el CB Barcelona")
 
+def on_closing():
+  #messagebox.showerror("Cerrar", "Esta ventana no puede ser cerrada")
+  if messagebox.askokcancel("Cerrar", "Desea cerrar el marcador?"):
+        root.destroy()
+    
+   
 root=Tk()
 root.title("CBS Barcelona Scoreboard")
 root.iconbitmap("logo/Barcelona.ico")
@@ -838,6 +937,11 @@ global HomeNum
 HomeNum=[1,2,3,4,5,6,7,8,9]
 global HomeName
 HomeName=["","","","","","","","",""]
+
+global atbatAway
+atbatAway=0
+global atbatHome
+atbatHome=0
 
 #Menu Bar
 barraMenu=Menu(root)
@@ -862,8 +966,8 @@ Button(root,text="Bola", command=addBola , width=7).grid(row=1,column=1, padx=5,
 Button(root,text="Out", command=addOut, width=7).grid(row=1,column=2, padx=5, pady=10)
 
 #botones hit/error/run
-Button(root,text="Hit", command=hit, width=7).grid(row=2,column=0, padx=5, pady=15)
-Button(root,text="Error", command=error, width=7).grid(row=2,column=1, padx=5, pady=15)
+Button(root,text="Hit", command=hit, width=7).grid(row=2,column=0, padx=5, pady=10)
+Button(root,text="Error", command=error, width=7).grid(row=2,column=1, padx=5, pady=10)
 Button(root,text="Run", command=addRun, width=7).grid(row=2,column=2, padx=5, pady=10)
 
 #Corredores en las bases
@@ -871,42 +975,45 @@ Primera=IntVar()
 Segunda=IntVar()
 Tercera=IntVar()
 
-Checkbutton(root,text="Primera", variable=Primera).grid(row=4,column=0, padx=5, pady=10)
-Checkbutton(root,text="Segunda", variable=Segunda).grid(row=4,column=1, padx=5, pady=10)
-Checkbutton(root,text="Tercera", variable=Tercera).grid(row=4,column=2, padx=5, pady=10)
-Button(root,text="Update Bases", command=bases).grid(row=4,column=3, padx=2, pady=10)
+Checkbutton(root,text="Primera", variable=Primera).grid(row=4,column=0, padx=5, pady=5)
+Checkbutton(root,text="Segunda", variable=Segunda).grid(row=4,column=1, padx=5, pady=5)
+Checkbutton(root,text="Tercera", variable=Tercera).grid(row=4,column=2, padx=5, pady=5)
+Button(root,text="Update Bases", command=bases).grid(row=4,column=3, padx=2, pady=5)
 
 #Lineup
 Button(root,text="Line Up", command=lineUp, width=7).grid(row=5,column=0, padx=5, pady=10)
-
-
 
 ttk.Separator(root,orient='horizontal').grid(row=6,column=0, sticky="ew", columnspan=4)
 
 #inning
 currentInning=IntVar()
 currentInning.set(1)
-OptionMenu(root,currentInning,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20).grid(row=7,column=0, padx=5, pady=10)
+OptionMenu(root,currentInning,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20).grid(row=7,column=0, padx=5, pady=5)
 
 topbot=IntVar() #0 en caso de Away, 1 en caso de Home
-Radiobutton(root, text="Top", variable=topbot, value=0).grid(row=7,column=1, padx=2, pady=10) 
-Radiobutton(root, text="Bot", variable=topbot, value=1).grid(row=7,column=2, padx=2, pady=10)
-Button(root,text="Update Inning", command=inning).grid(row=7,column=3, padx=2, pady=10)
+Radiobutton(root, text="Top", variable=topbot, value=0).grid(row=7,column=1, padx=2, pady=5) 
+Radiobutton(root, text="Bot", variable=topbot, value=1).grid(row=7,column=2, padx=2, pady=5)
+Button(root,text="Update Inning", command=inning).grid(row=7,column=3, padx=2, pady=5)
+
+#boton para cambiar el bateador
+Button(root,text="At Bat", command=atBat).grid(row=8,column=0, padx=2, pady=5)
 
 #Botores para incrementar o reducir
 incdec=IntVar()
 incdec.set(1) #Marcamos Increment por defecto al ejecutar
-Radiobutton(root, text="Increment", variable=incdec, value=1).grid(row=8,column=0, padx=2, pady=10)
-Radiobutton(root, text="Descent", variable=incdec, value=0).grid(row=8,column=1, padx=2, pady=10)
+Radiobutton(root, text="Increment", variable=incdec, value=1).grid(row=9,column=0, padx=2, pady=5)
+Radiobutton(root, text="Descent", variable=incdec, value=0).grid(row=9,column=1, padx=2, pady=5)
 
 
 #Lanzamos pantalla del ScoreBoard
 ScoreBoardScreen=""
 hitterOverviewScreen=""
+marcadorInningsScreen=""
 frameAway=""
 frameHome=""
 root.after(10, scoreboard)
 root.after(10, hitterOverview)
 root.after(10, marcadorInnings)
 root.geometry('+400+50')
+root.protocol("WM_DELETE_WINDOW", on_closing)
 root.mainloop()
