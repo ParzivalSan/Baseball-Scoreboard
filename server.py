@@ -32,12 +32,14 @@ state = {
     "strikes":   0,
     "outs":      0,
     "bases":     {"1st": False, "2nd": False, "3rd": False},
+    # event: solo se pone en trigger_anim. NUNCA se persiste entre acciones.
+    # Se envía como campo separado solo cuando hay un evento explícito.
 }
 
-# ─── LÓGICA DEL JUEGO ─────────────────────────────────────────────────────────
+# ─── HELPERS ──────────────────────────────────────────────────────────────────
 
 def _add_out() -> None:
-    """Suma un out. Al 3er out: cambia de half/inning y limpia bases y conteo."""
+    """Suma un out. Al 3er out: cambia half/inning y limpia bases y conteo."""
     state["outs"] += 1
     if state["outs"] >= 3:
         state["outs"]    = 0
@@ -45,99 +47,133 @@ def _add_out() -> None:
         state["strikes"] = 0
         state["bases"]   = {"1st": False, "2nd": False, "3rd": False}
         if state["isTop"]:
-            state["isTop"] = False          # top -> bot, mismo inning
+            state["isTop"] = False
         else:
-            state["isTop"]   = True         # bot -> top del siguiente inning
+            state["isTop"]   = True
             state["inning"] += 1
 
 
-def handle_action(action: str, payload: dict) -> None:
-    """Modifica `state` en función de la acción recibida desde el control."""
+def _walk() -> None:
+    """Base por bolas: avanza corredores en cadena. Bases llenas → carrera."""
+    b = state["bases"]
+    team_key = "awayScore" if state["isTop"] else "homeScore"
+    if b["1st"] and b["2nd"] and b["3rd"]:
+        state[team_key] += 1          # corredor de 3ª anota
+    if b["2nd"]:
+        b["3rd"] = True
+    if b["1st"]:
+        b["2nd"] = True
+    b["1st"] = True
+    state["balls"]   = 0
+    state["strikes"] = 0
 
-    # ── Datos de equipos ──────────────────────────────────────────────────────
+# ─── LÓGICA ───────────────────────────────────────────────────────────────────
+
+def handle_action(action: str, payload: dict) -> dict | None:
+    """
+    Modifica `state` y devuelve un dict de evento {event, label} si corresponde,
+    o None si no hay evento especial.
+    Las animaciones SOLO se disparan desde trigger_anim — nunca automáticamente.
+    """
+
+    # ── Equipos ───────────────────────────────────────────────────────────────
     if action == "set_away_name":
         state["awayName"] = payload.get("value", state["awayName"])
-
     elif action == "set_home_name":
         state["homeName"] = payload.get("value", state["homeName"])
-
     elif action == "set_away_color":
         state["awayColor"] = payload.get("value", state["awayColor"])
-
     elif action == "set_home_color":
         state["homeColor"] = payload.get("value", state["homeColor"])
-
     elif action == "set_brand":
         state["brand"] = payload.get("value", state["brand"])
 
     # ── Marcador ──────────────────────────────────────────────────────────────
     elif action == "score":
-        team  = payload.get("team")   # "away" | "home"
+        team  = payload.get("team")
         delta = payload.get("delta", 0)
         key   = "awayScore" if team == "away" else "homeScore"
         state[key] = max(0, state[key] + delta)
 
     # ── Inning ────────────────────────────────────────────────────────────────
     elif action == "inning":
-        delta = payload.get("delta", 0)
-        state["inning"] = max(1, min(15, state["inning"] + delta))
-
+        state["inning"] = max(1, min(15, state["inning"] + payload.get("delta", 0)))
     elif action == "toggle_half":
         state["isTop"] = not state["isTop"]
 
-    # ── Conteo — wrap-around al sumar ─────────────────────────────────────────
+    # ── Conteo ────────────────────────────────────────────────────────────────
+    # Los botones + en strikes/balls preguntan confirmación en el JS cuando llegan
+    # al límite. El servidor recibe strike_confirm / walk_confirm tras el OK.
+
     elif action == "ball":
-        state["balls"] = (state["balls"] + 1) % 4     # 0→1→2→3→0
+        # Bola normal (1, 2 o 3) — solo actualiza contador
+        state["balls"] = min(3, state["balls"] + 1)
+
+    elif action == "walk_confirm":
+        # 4ª bola confirmada por el usuario → base por bolas con lógica de corredores
+        _walk()
 
     elif action == "strike":
-        state["strikes"] = (state["strikes"] + 1) % 3  # 0→1→2→0
-        if state["strikes"] == 0:
-            # 3er strike: out automatico + reset conteo
-            state["balls"] = 0
-            _add_out()
+        # Strike normal (1 o 2) — solo actualiza contador
+        state["strikes"] = min(2, state["strikes"] + 1)
 
-    elif action == "out":
+    elif action == "strikeout_confirm":
+        # 3er strike confirmado por el usuario → out automático + reset conteo
+        state["balls"]   = 0
+        state["strikes"] = 0
         _add_out()
 
     elif action == "ball_minus":
-        state["balls"] = max(0, state["balls"] - 1)
-
+        state["balls"]   = max(0, state["balls"] - 1)
     elif action == "strike_minus":
         state["strikes"] = max(0, state["strikes"] - 1)
-
     elif action == "out_minus":
-        state["outs"] = max(0, state["outs"] - 1)
+        state["outs"]    = max(0, state["outs"] - 1)
 
     elif action == "reset_count":
         state["balls"]   = 0
         state["strikes"] = 0
 
+    elif action == "out":
+        _add_out()
+
     # ── Bases ─────────────────────────────────────────────────────────────────
     elif action == "toggle_base":
-        base = payload.get("base")  # "1st" | "2nd" | "3rd"
+        base = payload.get("base")
         if base in state["bases"]:
             state["bases"][base] = not state["bases"][base]
-
     elif action == "clear_bases":
         state["bases"] = {"1st": False, "2nd": False, "3rd": False}
 
-    # ── Reset completo ────────────────────────────────────────────────────────
+    # ── Reset ─────────────────────────────────────────────────────────────────
     elif action == "reset_all":
         state.update({
             "awayScore": 0, "homeScore": 0,
-            "inning":    1, "isTop":     True,
-            "balls":     0, "strikes":   0, "outs": 0,
-            "bases":     {"1st": False, "2nd": False, "3rd": False},
+            "inning": 1, "isTop": True,
+            "balls": 0, "strikes": 0, "outs": 0,
+            "bases": {"1st": False, "2nd": False, "3rd": False},
         })
+
+    # ── Animaciones — SOLO desde aquí, NUNCA automáticas ──────────────────────
+    elif action == "trigger_anim":
+        # Devuelve el evento para incluirlo en el broadcast de ESTE mensaje únicamente
+        event_type = payload.get("type", "")
+        team_name  = payload.get("team_name", "")  # para CARRERA
+        return {"event": event_type, "eventTeam": team_name}
+
+    return None  # sin evento
 
 # ─── BROADCAST ────────────────────────────────────────────────────────────────
 
-async def broadcast_all() -> None:
-    """Envía el estado actual a TODOS los clientes conectados."""
+async def broadcast_all(extra: dict | None = None) -> None:
+    """Envía el estado a todos los clientes, con campos extra opcionales (evento)."""
+    payload = dict(state)
+    if extra:
+        payload.update(extra)
     dead = []
     for client in clients:
         try:
-            await client.send_json(state)
+            await client.send_json(payload)
         except Exception:
             dead.append(client)
     for d in dead:
@@ -160,24 +196,19 @@ def serve_overlay():
 async def websocket_endpoint(ws: WebSocket):
     await ws.accept()
     clients.append(ws)
-
-    # Enviar estado actual al nuevo cliente al conectarse
     try:
-        await ws.send_json(state)
+        await ws.send_json(state)   # estado inicial sin evento
     except Exception:
         clients.remove(ws)
         return
 
     try:
         while True:
-            msg = await ws.receive_json()
-            # msg esperado: {"action": "ball"} o {"action": "score", "payload": {"team": "away", "delta": 1}}
+            msg     = await ws.receive_json()
             action  = msg.get("action", "")
             payload = msg.get("payload", {})
-            handle_action(action, payload)
-            # Retransmitir estado actualizado a TODOS (incluido el control,
-            # para que su UI refleje el estado canónico del servidor)
-            await broadcast_all()
+            extra   = handle_action(action, payload)
+            await broadcast_all(extra)  # extra solo existe en trigger_anim
 
     except WebSocketDisconnect:
         if ws in clients:
