@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Baseball Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: transparent;    /* ← transparente para OBS */
+    overflow: hidden;
+  }
+
+  body {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 24px;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  /* ── SCOREBOARD ── */
+  .scoreboard {
+    display: flex;
+    flex-direction: column;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.07);
+    min-width: 420px;
+    max-width: 560px;
+    animation: slideUp 0.5s cubic-bezier(0.22,1,0.36,1);
+  }
+  @keyframes slideUp {
+    from { transform:translateY(20px); opacity:0; }
+    to   { transform:translateY(0);    opacity:1; }
+  }
+
+  /* Top bar */
+  .sb-topbar {
+    background: linear-gradient(90deg, #080c12 0%, #111825 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .sb-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    color: #e8b84b;
+    letter-spacing: 0.2em;
+  }
+  .sb-inning-wrap { display:flex; align-items:center; gap:8px; }
+  .sb-half-arrow {
+    font-size: 0.75rem; color: #8090b0;
+    transition: transform 0.3s;
+  }
+  .sb-half-arrow.bot { transform: rotate(180deg); }
+  .sb-half-text  { font-size:0.6rem; color:#8090b0; letter-spacing:0.2em; text-transform:uppercase; }
+  .sb-inning-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem; color: #f0f2f8; letter-spacing: 0.08em;
+  }
+
+  /* Main */
+  .sb-main { display:flex; background:rgba(8,10,16,0.97); }
+
+  /* Team rows */
+  .sb-teams { flex:1; display:flex; flex-direction:column; }
+  .sb-team-row {
+    display:flex; align-items:center;
+    padding:0 14px; height:46px; gap:10px;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+  }
+  .sb-team-row:last-child { border-bottom:none; }
+  .sb-indicator {
+    width:3px; height:30px; border-radius:2px;
+    flex-shrink:0; transition:background 0.4s;
+  }
+  .sb-team-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size:1.4rem; letter-spacing:0.06em; flex:1;
+    color:#f0f2f8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .sb-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size:2.3rem; letter-spacing:0.04em;
+    min-width:38px; text-align:right;
+    transition:color 0.4s;
+  }
+  .sb-score.flash { animation: scoreFlash 0.45s ease forwards; }
+  @keyframes scoreFlash {
+    0%   { transform:scale(1.4); }
+    100% { transform:scale(1); }
+  }
+
+  /* Count block */
+  .sb-count {
+    background: linear-gradient(180deg,#0d1520 0%,#090c14 100%);
+    display:flex; flex-direction:column;
+    justify-content:center; gap:7px;
+    padding:8px 16px;
+    border-left:1px solid rgba(255,255,255,0.06);
+    min-width:80px;
+  }
+  .count-row  { display:flex; align-items:center; gap:8px; }
+  .count-lbl  { font-size:0.8rem; letter-spacing:0.2em; color:#6b7080; text-transform:uppercase; width:10px; flex-shrink:0; }
+  .dots       { display:flex; gap:5px; }
+  .dot {
+    width:9px; height:9px; border-radius:50%;
+    border:1.5px solid #6b7080;
+    transition:all 0.2s;
+  }
+  .dot.ball   { background:#52e88a; border-color:#52e88a; box-shadow:0 0 6px #52e88a; }
+  .dot.strike { background:#e85252; border-color:#e85252; box-shadow:0 0 6px #e85252; }
+  .dot.out    { background:#e8b84b; border-color:#e8b84b; box-shadow:0 0 6px #e8b84b; }
+
+  /* Bases diamond */
+  .sb-bases {
+    background: linear-gradient(180deg,#090c14 0%,#060810 100%);
+    display:flex; align-items:center; justify-content:center;
+    padding:0 18px;
+    border-left:1px solid rgba(255,255,255,0.06);
+  }
+  .diamond { position:relative; width:54px; height:40px; }
+  .base {
+    position:absolute;
+    width:17px; height:17px;
+    border:1.5px solid #4a5060;
+    transform:rotate(45deg);
+    border-radius:2px;
+    transition:all 0.25s;
+  }
+  .base.on {
+    background:#e8b84b; border-color:#e8b84b;
+    box-shadow:0 0 12px rgba(232,184,75,0.65);
+  }
+  .b-1st  { bottom:1px; right:1px; }
+  .b-2nd  { top:1px; left:50%; transform:translateX(-50%) rotate(45deg); }
+  .b-3rd  { bottom:1px; left:1px; }
+  .b-home {
+    bottom:1px; left:50%;
+    transform:translateX(-50%) rotate(45deg);
+    width:10px; height:10px;
+    background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.15);
+  }
+
+  /* WS status chip (pequeño, esquina) */
+  .ws-status {
+    position: fixed;
+    top: 10px; right: 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.55);
+    color: #6b7080;
+    border: 1px solid #2a2d38;
+    transition: all 0.3s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .ws-status.on  { color:#52e88a; border-color:#52e88a; }
+  .ws-status.off { color:#e85252; border-color:#e85252; }
+  .ws-blink { width:5px; height:5px; border-radius:50%; background:currentColor; }
+  .ws-status.on .ws-blink { animation:blink 1.4s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+</style>
+</head>
+<body>
+
+<!-- Indicador WS (solo visible si OBS no oculta la UI) -->
+<div class="ws-status off" id="ws-chip">
+  <span class="ws-blink"></span>
+  <span id="ws-chip-label">OFFLINE</span>
+</div>
+
+<div class="scoreboard">
+
+  <div class="sb-topbar">
+    <span class="sb-brand" id="ov-brand">BASEBALL</span>
+    <div class="sb-inning-wrap">
+      <span class="sb-half-arrow" id="ov-arrow">▲</span>
+      <span class="sb-half-text"  id="ov-half">TOP</span>
+      <span class="sb-inning-num" id="ov-inning">1<sup style="font-size:0.55em">ST</sup></span>
+    </div>
+  </div>
+
+  <div class="sb-main">
+
+    <div class="sb-teams">
+      <div class="sb-team-row">
+        <div class="sb-indicator" id="ov-away-ind"></div>
+        <div class="sb-team-name" id="ov-away-name">VISITANTE</div>
+        <div class="sb-score"     id="ov-away-score">0</div>
+      </div>
+      <div class="sb-team-row">
+        <div class="sb-indicator" id="ov-home-ind"></div>
+        <div class="sb-team-name" id="ov-home-name">LOCAL</div>
+        <div class="sb-score"     id="ov-home-score">0</div>
+      </div>
+    </div>
+
+    <div class="sb-count">
+      <!-- 4 bolas -->
+      <div class="count-row">
+        <span class="count-lbl">B</span>
+        <div class="dots" id="ov-balls">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+      </div>
+      <!-- 3 strikes -->
+      <div class="count-row">
+        <span class="count-lbl">S</span>
+        <div class="dots" id="ov-strikes">
+          <div class="dot"></div><div class="dot"></div>
+        </div>
+      </div>
+      <!-- 3 outs -->
+      <div class="count-row">
+        <span class="count-lbl">O</span>
+        <div class="dots" id="ov-outs">
+          <div class="dot"></div><div class="dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sb-bases">
+      <div class="diamond">
+        <div class="base b-2nd" id="ov-b2"></div>
+        <div class="base b-3rd" id="ov-b3"></div>
+        <div class="base b-1st" id="ov-b1"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const SUFFIXES = ['','ST','ND','RD','TH','TH','TH','TH','TH','TH'];
+  function sfx(n) { return (n===11||n===12||n===13)?'TH':(SUFFIXES[n%10]||'TH'); }
+
+  // IDs cacheados — evita querySelector en cada frame
+  const el = id => document.getElementById(id);
+  const prevScores = { away: -1, home: -1 };
+
+  function applyState(s) {
+    if (!s) return;
+
+    // Nombres
+    el('ov-away-name').textContent = s.awayName || 'VISITANTE';
+    el('ov-home-name').textContent = s.homeName || 'LOCAL';
+
+    // Colores (indicador lateral + texto score)
+    const ac = s.awayColor || '#e85252';
+    const hc = s.homeColor || '#4bc8e8';
+    el('ov-away-ind').style.background   = ac;
+    el('ov-home-ind').style.background   = hc;
+    el('ov-away-score').style.color = ac;
+    el('ov-home-score').style.color = hc;
+
+    // Scores con flash si cambian
+    const awayEl = el('ov-away-score');
+    const homeEl = el('ov-home-score');
+    if ((s.awayScore ?? 0) !== prevScores.away) {
+      awayEl.textContent = s.awayScore ?? 0;
+      awayEl.classList.remove('flash');
+      void awayEl.offsetWidth;        // reflow para reiniciar animación
+      awayEl.classList.add('flash');
+      prevScores.away = s.awayScore;
+    }
+    if ((s.homeScore ?? 0) !== prevScores.home) {
+      homeEl.textContent = s.homeScore ?? 0;
+      homeEl.classList.remove('flash');
+      void homeEl.offsetWidth;
+      homeEl.classList.add('flash');
+      prevScores.home = s.homeScore;
+    }
+
+    // Inning
+    const n = s.inning || 1;
+    el('ov-inning').innerHTML = `${n}<sup style="font-size:0.55em">${sfx(n)}</sup>`;
+    el('ov-half').textContent  = s.isTop ? 'TOP' : 'BOT';
+    const arr = el('ov-arrow');
+    arr.textContent = s.isTop ? '▲' : '▼';
+    arr.className   = 'sb-half-arrow' + (s.isTop ? '' : ' bot');
+
+    // Brand
+    el('ov-brand').textContent = s.brand || 'BASEBALL';
+
+    // Dots — bolas (4), strikes (3), outs (3)
+    document.querySelectorAll('#ov-balls   .dot').forEach((d,i) => d.className='dot'+(i<(s.balls||0)?   ' ball':''));
+    document.querySelectorAll('#ov-strikes .dot').forEach((d,i) => d.className='dot'+(i<(s.strikes||0)?' strike':''));
+    document.querySelectorAll('#ov-outs    .dot').forEach((d,i) => d.className='dot'+(i<(s.outs||0)?    ' out':''));
+
+    // Bases
+    const b = s.bases || {};
+    el('ov-b1').className = 'base b-1st' + (b['1st'] ? ' on' : '');
+    el('ov-b2').className = 'base b-2nd' + (b['2nd'] ? ' on' : '');
+    el('ov-b3').className = 'base b-3rd' + (b['3rd'] ? ' on' : '');
+  }
+
+  // ── WEBSOCKET ──
+  const chip      = el('ws-chip');
+  const chipLabel = el('ws-chip-label');
+
+  function setChip(online) {
+    chip.className      = `ws-status ${online ? 'on' : 'off'}`;
+    chipLabel.textContent = online ? 'LIVE' : 'OFFLINE';
+  }
+
+  function connect() {
+    const ws = new WebSocket(`ws://${location.host}/ws`);
+
+    ws.onopen    = () => { setChip(true);  console.log('Overlay WS conectado'); };
+    ws.onclose   = () => { setChip(false); setTimeout(connect, 3000); };
+    ws.onerror   = ()  => setChip(false);
+
+    ws.onmessage = e => {
+      try { applyState(JSON.parse(e.data)); }
+      catch(err) { console.error('JSON parse error', err); }
+    };
+  }
+
+  connect();
+</script>
+</body>
+</html>

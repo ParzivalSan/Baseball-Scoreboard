@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚾ CBB Scoreboard Control Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #090b10;
+    --card: #12151e;
+    --card2: #1a1d28;
+    --border: #252836;
+    --accent: #e8b84b;
+    --green: #52e88a;
+    --red: #e85252;
+    --text: #eef0f8;
+    --muted: #606575;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 18px 20px 32px;
+    gap: 18px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    width: 100%;
+    max-width: 860px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .hdr-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--accent);
+    letter-spacing: 0.25em;
+    line-height: 1;
+  }
+  .hdr-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .ws-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    transition: all 0.3s;
+  }
+  .ws-badge.connected { border-color: var(--green); color: var(--green); }
+  .ws-badge.disconnected { border-color: var(--red); color: var(--red); }
+  .ws-badge.connecting { border-color: var(--accent); color: var(--accent); }
+  .ws-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .ws-badge.connected .ws-dot { animation: blink 1.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+    max-width: 860px;
+  }
+  .grid-wide { grid-column: 1 / -1; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    color: var(--muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+
+  /* ── TEAMS ── */
+  .teams-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .team-block { display: flex; flex-direction: column; gap: 8px; }
+  .team-header { display: flex; align-items: center; gap: 8px; }
+  .team-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%; flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .field-lbl {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .field-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .field-input:focus { outline: none; border-color: var(--accent); }
+
+  /* Color picker */
+  .color-row { display: flex; align-items: center; gap: 8px; }
+  .color-lbl {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    flex: 1;
+  }
+  input[type="color"] {
+    -webkit-appearance: none;
+    width: 36px; height: 28px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 2px;
+    background: var(--bg);
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  input[type="color"]::-webkit-color-swatch { border-radius: 4px; border: none; }
+  .color-presets { display: flex; gap: 5px; flex-wrap: wrap; }
+  .preset {
+    width: 20px; height: 20px;
+    border-radius: 4px;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .preset:hover { transform: scale(1.18); }
+  .preset.selected { border-color: rgba(255,255,255,0.7); }
+
+  /* ── SCORE ── */
+  .score-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .score-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .score-lbl {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .score-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.2rem; line-height: 1;
+    transition: color 0.3s;
+  }
+  .score-btns { display: flex; gap: 8px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: 0.88rem;
+    letter-spacing: 0.06em;
+    border: none; border-radius: 6px;
+    padding: 7px 16px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .btn:active { transform: scale(0.94); }
+  .btn-plus  { background: var(--green); color: #041a0d; }
+  .btn-plus:hover  { filter: brightness(1.15); }
+  .btn-minus { background: #22252f; color: var(--text); }
+  .btn-minus:hover { background: #2e3140; }
+  .btn-gold  { background: var(--accent); color: #160f00; }
+  .btn-gold:hover  { filter: brightness(1.1); }
+  .btn-red   { background: var(--red); color: #fff; }
+  .btn-red:hover   { filter: brightness(1.1); }
+  .btn-muted { background: #1c1f2b; color: var(--muted); font-size: 0.78rem; }
+  .btn-muted:hover { color: var(--text); background: #272a38; }
+  .btn-wide  { width: 100%; padding: 9px; font-size: 0.88rem; border-radius: 8px; }
+
+  /* ── INNING ── */
+  .inning-row { display: flex; align-items: center; gap: 10px; }
+  .inning-box {
+    flex: 1;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .inning-num  { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; line-height: 1; }
+  .inning-half {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem; color: var(--muted);
+    letter-spacing: 0.2em; text-transform: uppercase;
+  }
+  .btn-nav {
+    background: #1c1f2b; border: 1px solid var(--border);
+    color: var(--text); border-radius: 6px;
+    padding: 10px 13px; cursor: pointer; font-size: 1rem;
+    transition: background 0.15s;
+  }
+  .btn-nav:hover { background: #272a38; }
+
+  /* ── COUNT ── */
+  .count-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .count-block {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 7px;
+  }
+  .count-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; line-height: 1; }
+  .count-lbl-small {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .count-btns { display: flex; gap: 6px; }
+  .btn-sm { font-size: 0.82rem; padding: 5px 12px; }
+
+  /* ── BASES ── */
+  .bases-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .base-btn {
+    background: var(--bg); border: 1.5px solid var(--border);
+    color: var(--muted); border-radius: 7px;
+    padding: 9px 6px; cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: 0.8rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    transition: all 0.18s; text-align: center;
+  }
+  .base-btn:hover { border-color: var(--accent); color: var(--text); }
+  .base-btn.on {
+    background: rgba(232,184,75,0.14);
+    border-color: var(--accent); color: var(--accent);
+    box-shadow: 0 0 12px rgba(232,184,75,0.18);
+  }
+
+  /* ── STATUS ── */
+  .status-bar {
+    width: 100%; max-width: 860px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem; color: var(--muted); letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 640px) {
+    .grid { grid-template-columns: 1fr; }
+    .grid-wide { grid-column: 1; }
+    .teams-row { grid-template-columns: 1fr; }
+    header { flex-direction: column; align-items: flex-start; }
+  }
+
+  /*- Estilos para el colapsable -*/
+  summary {
+    list-style: none; /* Quita la flecha por defecto */
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none; /* Quita la flecha en Safari */
+  }
+
+  .toggle-icon {
+    font-size: 1rem;
+    color: var(--accent);
+    transition: transform 0.3s ease;
+  }
+
+  details[open] .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  .content-wrapper {
+    padding-top: 12px;
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div>
+    <div class="hdr-title">⚾ CBB Scoreboard Control Panel</div>
+    <div class="hdr-sub">Panel de control — OBS</div>
+  </div>
+  <div class="ws-badge disconnected" id="ws-badge">
+    <span class="ws-dot"></span>
+    <span id="ws-label">Desconectado</span>
+  </div>
+</header>
+
+<div class="grid">
+
+  <!-- TEAMS + COLORS -->
+  <details class="card grid-wide" open>
+  <summary class="card-title">
+    Equipos
+    <span class="toggle-icon">▾</span>
+  </summary>
+  
+  <div class="content-wrapper">
+    <div class="teams-row">
+      <div class="team-block">
+        <div class="team-header">
+          <div class="team-dot" id="dot-away"></div>
+          <span class="field-lbl">Visitante</span>
+        </div>
+        <input class="field-input" id="away-name" type="text" value="VISITANTE" placeholder="Nombre visitante">
+        <div class="color-row">
+          <span class="color-lbl">Color</span>
+          <div class="color-presets" id="presets-away"></div>
+          <input type="color" id="color-away" value="#e85252" oninput="onColorChange('away')">
+        </div>
+      </div>
+      <div class="team-block">
+        <div class="team-header">
+          <div class="team-dot" id="dot-home"></div>
+          <span class="field-lbl">Local</span>
+        </div>
+        <input class="field-input" id="home-name" type="text" value="LOCAL" placeholder="Nombre local">
+        <div class="color-row">
+          <span class="color-lbl">Color</span>
+          <div class="color-presets" id="presets-home"></div>
+          <input type="color" id="color-home" value="#4bc8e8" oninput="onColorChange('home')">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;margin-top:12px;">
+      <span class="field-lbl" style="white-space:nowrap">Nombre retransmisión</span>
+      <input class="field-input" id="brand-input" type="text" value="BASEBALL" placeholder="Liga / Evento" style="flex:1">
+    </div>
+  </div>
+  </details>
+
+  <!-- SCORE -->
+  <div class="card">
+    <div class="card-title">Marcador</div>
+    <div class="score-pair">
+      <div class="score-block">
+        <div class="score-lbl" id="lbl-away" style="color:#e85252">Visitante</div>
+        <div class="score-num" id="num-away" style="color:#e85252">0</div>
+        <div class="score-btns">
+          <button class="btn btn-minus" onclick="changeScore('away',-1)">−</button>
+          <button class="btn btn-plus"  onclick="changeScore('away', 1)">+1</button>
+        </div>
+      </div>
+      <div class="score-block">
+        <div class="score-lbl" id="lbl-home" style="color:#4bc8e8">Local</div>
+        <div class="score-num" id="num-home" style="color:#4bc8e8">0</div>
+        <div class="score-btns">
+          <button class="btn btn-minus" onclick="changeScore('home',-1)">−</button>
+          <button class="btn btn-plus"  onclick="changeScore('home', 1)">+1</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INNING -->
+  <div class="card">
+    <div class="card-title">Inning</div>
+    <div class="inning-row">
+      <button class="btn-nav" onclick="changeInning(-1)">◀</button>
+      <div class="inning-box">
+        <div class="inning-num"  id="inning-num">1</div>
+        <div class="inning-half" id="inning-half">TOP ▲</div>
+      </div>
+      <button class="btn-nav" onclick="changeInning(1)">▶</button>
+      <button class="btn btn-gold" onclick="toggleHalf()" style="padding:9px 14px;font-size:0.82rem;">⇅ SWAP</button>
+    </div>
+  </div>
+
+  <!-- COUNT -->
+  <div class="card grid-wide">
+    <div class="card-title">Conteo</div>
+    <div class="count-grid">
+      <div class="count-block">
+        <div class="count-num" id="num-balls"   style="color:var(--green)">0</div>
+        <div class="count-lbl-small"             style="color:var(--green)">Bolas</div>
+        <div class="count-btns">
+          <button class="btn btn-minus btn-sm" onclick="changeCount('balls',-1)">−</button>
+          <button class="btn btn-sm" style="background:var(--green);color:#041a0d" onclick="changeCount('balls',1)">+</button>
+        </div>
+      </div>
+      <div class="count-block">
+        <div class="count-num" id="num-strikes" style="color:var(--red)">0</div>
+        <div class="count-lbl-small"             style="color:var(--red)">Strikes</div>
+        <div class="count-btns">
+          <button class="btn btn-minus btn-sm" onclick="changeCount('strikes',-1)">−</button>
+          <button class="btn btn-sm" style="background:var(--red);color:#fff" onclick="changeCount('strikes',1)">+</button>
+        </div>
+      </div>
+      <div class="count-block">
+        <div class="count-num" id="num-outs"    style="color:var(--accent)">0</div>
+        <div class="count-lbl-small"             style="color:var(--accent)">Outs</div>
+        <div class="count-btns">
+          <button class="btn btn-minus btn-sm" onclick="changeCount('outs',-1)">−</button>
+          <button class="btn btn-gold btn-sm"   onclick="changeCount('outs',1)">+</button>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-muted btn-wide" onclick="resetCount()">🔁 Reset Conteo (nueva entrada)</button>
+  </div>
+
+  <!-- BASES -->
+  <div class="card">
+    <div class="card-title">Bases Ocupadas</div>
+    <div class="bases-grid">
+      <button class="base-btn" id="bbtn-3rd" onclick="toggleBase('3rd')">3ª Base</button>
+      <button class="base-btn" id="bbtn-2nd" onclick="toggleBase('2nd')">2ª Base</button>
+      <button class="base-btn" id="bbtn-1st" onclick="toggleBase('1st')">1ª Base</button>
+      <button class="base-btn btn-muted" style="grid-column:1/-1" onclick="clearBases()">Limpiar bases</button>
+    </div>
+  </div>
+
+  <!-- RESET -->
+  <div class="card" style="justify-content:center">
+    <div class="card-title">Reset</div>
+    <button class="btn btn-red btn-wide" onclick="resetAll()">🔄 Reset Completo</button>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;color:var(--muted);text-align:center;letter-spacing:0.08em;line-height:1.5">
+      Resetea marcador, conteo,<br>bases e inning
+    </div>
+  </div>
+
+</div>
+
+<!-- STATUS -->
+<div class="status-bar">
+  <span id="status-msg">Conectando al servidor WebSocket...</span>
+  <span id="status-clock">--:--:--</span>
+</div>
+
+<script>
+  // ══════════════════════════════════════════════════════════════════════════
+  //  CONTROL — Solo envía ACCIONES al servidor. Toda la lógica está en Python.
+  //  El servidor devuelve el estado canónico y aquí solo se renderiza.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // ── PRESETS DE COLOR ──
+  const PRESETS = ['#02437d','#a40133','#f7e94e','#52e88a','#4bc8e8','#5f7fff','#c84be8','#ffffff','#b0b8c8','#e87452'];
+
+  function buildPresets(team) {
+    const wrap = document.getElementById(`presets-${team}`);
+    PRESETS.forEach(c => {
+      const el = document.createElement('div');
+      el.className = 'preset';
+      el.style.background = c;
+      el.dataset.color = c;
+      el.onclick = () => {
+        document.getElementById(`color-${team}`).value = c;
+        send(`set_${team}_color`, { value: c });
+      };
+      wrap.appendChild(el);
+    });
+  }
+  buildPresets('away');
+  buildPresets('home');
+
+  // ── WEBSOCKET ──
+  let ws = null;
+  const badge   = document.getElementById('ws-badge');
+  const wsLabel = document.getElementById('ws-label');
+
+  function setWsStatus(s) {
+    badge.className = `ws-badge ${s}`;
+    wsLabel.textContent = { connected:'Conectado', disconnected:'Desconectado', connecting:'Conectando...' }[s] || s;
+  }
+
+  function connect() {
+    setWsStatus('connecting');
+    ws = new WebSocket(`ws://${location.host}/ws`);
+
+    ws.onopen = () => {
+      setWsStatus('connected');
+      setStatus('✅ WebSocket conectado');
+    };
+    ws.onclose = () => {
+      setWsStatus('disconnected');
+      setStatus('⚠️ Desconectado — reintentando en 3s...');
+      setTimeout(connect, 3000);
+    };
+    ws.onerror = () => setStatus('❌ Error WS — ¿está corriendo server.py?');
+
+    // El servidor devuelve el estado canónico tras cada acción → renderizamos
+    ws.onmessage = e => {
+      try { renderState(JSON.parse(e.data)); }
+      catch(err) { console.error('JSON parse error', err); }
+    };
+  }
+
+  // Enviar acción al servidor
+  function send(action, payload = {}) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ action, payload }));
+    }
+  }
+
+  // ── RENDER — actualiza la UI con el estado que devuelve el servidor ──
+  const SFX = ['','ST','ND','RD','TH','TH','TH','TH','TH','TH'];
+  function sfx(n) { return (n===11||n===12||n===13)?'TH':(SFX[n%10]||'TH'); }
+
+  function renderState(s) {
+    // Nombres (solo si el input no tiene foco para no interrumpir al usuario)
+    if (document.activeElement !== document.getElementById('away-name'))
+      document.getElementById('away-name').value  = s.awayName;
+    if (document.activeElement !== document.getElementById('home-name'))
+      document.getElementById('home-name').value  = s.homeName;
+    if (document.activeElement !== document.getElementById('brand-input'))
+      document.getElementById('brand-input').value = s.brand;
+
+    // Colores
+    document.getElementById('color-away').value = s.awayColor;
+    document.getElementById('color-home').value = s.homeColor;
+    document.getElementById('dot-away').style.background = s.awayColor;
+    document.getElementById('dot-home').style.background = s.homeColor;
+    document.getElementById('num-away').style.color = s.awayColor;
+    document.getElementById('num-home').style.color = s.homeColor;
+    document.getElementById('lbl-away').style.color = s.awayColor;
+    document.getElementById('lbl-home').style.color = s.homeColor;
+    ['away','home'].forEach(t => {
+      document.querySelectorAll(`#presets-${t} .preset`).forEach(p =>
+        p.classList.toggle('selected', p.dataset.color === s[t+'Color'])
+      );
+    });
+
+    // Scores
+    document.getElementById('num-away').textContent = s.awayScore;
+    document.getElementById('num-home').textContent = s.homeScore;
+
+    // Inning
+    document.getElementById('inning-num').textContent  = s.inning;
+    document.getElementById('inning-half').textContent = s.isTop ? 'TOP ▲' : 'BOT ▼';
+
+    // Conteo
+    document.getElementById('num-balls').textContent   = s.balls;
+    document.getElementById('num-strikes').textContent = s.strikes;
+    document.getElementById('num-outs').textContent    = s.outs;
+
+    // Bases
+    ['1st','2nd','3rd'].forEach(b =>
+      document.getElementById(`bbtn-${b}`).classList.toggle('on', s.bases[b])
+    );
+  }
+
+  // ── ACCIONES — el JS solo construye mensajes, Python hace los cálculos ──
+
+  // Equipos (se envían al perder el foco del input)
+  document.getElementById('away-name').addEventListener('change', e =>
+    send('set_away_name', { value: e.target.value })
+  );
+  document.getElementById('home-name').addEventListener('change', e =>
+    send('set_home_name', { value: e.target.value })
+  );
+  document.getElementById('brand-input').addEventListener('change', e =>
+    send('set_brand', { value: e.target.value })
+  );
+
+  function onColorChange(team) {
+    send(`set_${team}_color`, { value: document.getElementById(`color-${team}`).value });
+  }
+
+  // Marcador
+  function changeScore(team, delta) { send('score', { team, delta }); }
+
+  // Inning
+  function changeInning(delta)      { send('inning', { delta }); }
+  function toggleHalf()             { send('toggle_half'); }
+
+  // Conteo
+  function changeCount(type, delta) {
+    // type: 'balls' | 'strikes' | 'outs'
+    // Mapear a las acciones del servidor
+    const actionMap = {
+      balls:   delta > 0 ? 'ball'   : 'ball_minus',
+      strikes: delta > 0 ? 'strike' : 'strike_minus',
+      outs:    delta > 0 ? 'out'    : 'out_minus',
+    };
+    send(actionMap[type]);
+  }
+  function resetCount() { send('reset_count'); }
+
+  // Bases
+  function toggleBase(base)  { send('toggle_base', { base }); }
+  function clearBases()      { send('clear_bases'); }
+
+  // Reset
+  function resetAll() {
+    if (!confirm('¿Resetear todo el marcador?')) return;
+    send('reset_all');
+  }
+
+  // ── STATUS + CLOCK ──
+  function setStatus(msg) { document.getElementById('status-msg').textContent = msg; }
+  function tick() {
+    document.getElementById('status-clock').textContent =
+      new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }
+  setInterval(tick, 1000); tick();
+
+  // ── INIT ──
+  connect();
+</script>
+</body>
+</html>
