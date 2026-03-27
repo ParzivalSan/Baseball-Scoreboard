@@ -24,6 +24,7 @@
   /* ── SCOREBOARD ── */
   .scoreboard {
     display: flex;
+    position: relative;
     flex-direction: column;
     border-radius: 6px;
     overflow: hidden;
@@ -146,6 +147,31 @@
     width:10px; height:10px;
     background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.15);
   }
+  /* Contenedor de animaciones */
+  .anim-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem; letter-spacing: 0.2em;
+    color: #fff; opacity: 0; pointer-events: none;
+    z-index: 10;
+    transition: all 0.2s;
+  }
+
+  .anim-hit { background: linear-gradient(90deg,#52e88a 0%, #a7ffc5 100%); color: #111; }
+  .anim-error { background: linear-gradient(90deg, #e85252, #ff7676); }
+
+  .anim-active {
+    animation: animIn 2.5s forwards;
+  }
+
+  @keyframes animIn {
+    0%   { opacity: 0; transform: scale(0.9); }
+    10%  { opacity: 1; transform: scale(1); }
+    90%  { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.1); }
+  }
 
   /* WS status chip (pequeño, esquina) */
   .ws-status {
@@ -179,7 +205,7 @@
 </div>
 
 <div class="scoreboard">
-
+  <div id="anim-layer" class="anim-overlay">HIT</div>
   <div class="sb-topbar">
     <span class="sb-brand" id="ov-brand">BASEBALL</span>
     <div class="sb-inning-wrap">
@@ -249,6 +275,20 @@
 
   function applyState(s) {
     if (!s) return;
+    // Manejo de animaciones
+    if (s.event) {
+      const layer = el('anim-layer');
+      layer.textContent = s.event;
+      layer.className = `anim-overlay anim-${s.event.toLowerCase()} anim-active`;
+      
+      // Limpiamos la clase después de que termine la animación (2.5s)
+      setTimeout(() => {
+        layer.classList.remove('anim-active');
+      }, 2500);
+      
+      // IMPORTANTE: El estado de 'event' debe limpiarse para no repetirse
+      s.event = null; 
+    }
 
     // Nombres
     el('ov-away-name').textContent = s.awayName || 'VISITANTE';

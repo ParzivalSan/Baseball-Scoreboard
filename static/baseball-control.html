@@ -214,8 +214,10 @@
   .btn-plus:hover  { filter: brightness(1.15); }
   .btn-minus { background: #22252f; color: var(--text); }
   .btn-minus:hover { background: #2e3140; }
-  .btn-gold  { background: var(--accent); color: #160f00; }
+  .btn-gold  { background: #e8b84b; color: #160f00; }
   .btn-gold:hover  { filter: brightness(1.1); }
+  .btn-green {background:#52e88a;color:#041a0d;}
+  .btn-green:hover  { filter: brightness(1.1); }
   .btn-red   { background: var(--red); color: #fff; }
   .btn-red:hover   { filter: brightness(1.1); }
   .btn-muted { background: #1c1f2b; color: var(--muted); font-size: 0.78rem; }
@@ -454,7 +456,14 @@
     </div>
     <button class="btn btn-muted btn-wide" onclick="resetCount()">🔁 Reset Conteo (nueva entrada)</button>
   </div>
-
+  <!-- EVENTOS -->
+  <div class="card">
+    <div class="card-title">Eventos</div>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn btn-green btn-wide" onclick="triggerAnim('HIT')">⚡ HIT</button>
+      <button class="btn btn-red btn-wide" onclick="triggerAnim('ERROR')">⚠️ ERROR</button>
+    </div>
+  </div>
   <!-- BASES -->
   <div class="card">
     <div class="card-title">Bases Ocupadas</div>
@@ -640,6 +649,11 @@
   function resetAll() {
     if (!confirm('¿Resetear todo el marcador?')) return;
     send('reset_all');
+  }
+
+  // Animaciones
+  function triggerAnim(type) {
+    send('trigger_anim', { type: type });
   }
 
   // ── STATUS + CLOCK ──
