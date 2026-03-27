@@ -120,6 +120,31 @@
     85%  { opacity:1; transform:scale(1); }
     100% { opacity:0; transform:scale(1.06); }
   }
+  /* Contenedor de animaciones */
+  .anim-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem; letter-spacing: 0.2em;
+    color: #fff; opacity: 0; pointer-events: none;
+    z-index: 10;
+    transition: all 0.2s;
+  }
+
+  .anim-hit { background: linear-gradient(90deg,#52e88a 0%, #a7ffc5 100%); color: #111; }
+  .anim-error { background: linear-gradient(90deg, #e85252, #ff7676); }
+
+  .anim-active {
+    animation: animIn 2.5s forwards;
+  }
+
+  @keyframes animIn {
+    0%   { opacity: 0; transform: scale(0.9); }
+    10%  { opacity: 1; transform: scale(1); }
+    90%  { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.1); }
+  }
 
   /* Tipos de evento — solo cambia fondo y color de texto */
   .anim-hit       { background:linear-gradient(90deg,#1a4a1a,#0a2a0a); color:#52e88a; }
@@ -272,6 +297,20 @@
   // ── ESTADO ──
   function applyState(s) {
     if (!s) return;
+    // Manejo de animaciones
+    if (s.event) {
+      const layer = el('anim-layer');
+      layer.textContent = s.event;
+      layer.className = `anim-overlay anim-${s.event.toLowerCase()} anim-active`;
+      
+      // Limpiamos la clase después de que termine la animación (2.5s)
+      setTimeout(() => {
+        layer.classList.remove('anim-active');
+      }, 2500);
+      
+      // IMPORTANTE: El estado de 'event' debe limpiarse para no repetirse
+      s.event = null; 
+    }
 
     // Animación — SOLO si hay campo event en el mensaje
     // El servidor solo lo incluye en trigger_anim, nunca en acciones de juego
