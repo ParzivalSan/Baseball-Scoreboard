@@ -129,6 +129,12 @@ def handle_action(action: str, payload: dict) -> None:
             "balls":     0, "strikes":   0, "outs": 0,
             "bases":     {"1st": False, "2nd": False, "3rd": False},
         })
+# ── Animaciones ───────────────────────────────────────────────────────────
+    elif action == "trigger_anim":
+        state["event"] = payload.get("type") # "HIT" o "ERROR"
+        # Opcional: podrías limpiar el evento después de un segundo, 
+        # pero el overlay se encargará de quitar la clase.
+
 
 # ─── BROADCAST ────────────────────────────────────────────────────────────────
 
