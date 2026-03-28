@@ -156,10 +156,15 @@ def handle_action(action: str, payload: dict) -> dict | None:
 
     # ── Animaciones — SOLO desde aquí, NUNCA automáticas ──────────────────────
     elif action == "trigger_anim":
-        # Devuelve el evento para incluirlo en el broadcast de ESTE mensaje únicamente
         event_type = payload.get("type", "")
-        team_name  = payload.get("team_name", "")  # para CARRERA
-        return {"event": event_type, "eventTeam": team_name}
+        # Para CARRERA: el servidor deduce el equipo a partir de isTop
+        if event_type == "RUN":
+            team_name  = state["awayName"]  if state["isTop"] else state["homeName"]
+            team_color = state["awayColor"] if state["isTop"] else state["homeColor"]
+        else:
+            team_name  = payload.get("team_name", "")
+            team_color = payload.get("team_color", "")
+        return {"event": event_type, "eventTeam": team_name, "eventTeamColor": team_color}
 
     return None  # sin evento
 

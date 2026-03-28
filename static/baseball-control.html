@@ -357,28 +357,22 @@
         </div>
       </div>
     </div>
-    <button class="btn btn-muted btn-wide" onclick="resetCount()">🔁 Reset Conteo (nueva entrada)</button>
+    <button class="btn btn-muted btn-wide" onclick="resetCount()">🔁 Reset Conteo</button>
   </div>
 
   <!-- ANIMACIONES -->
   <div class="card grid-wide">
     <div class="card-title">Animaciones en overlay</div>
     <div class="events-grid">
-      <button class="event-btn event-btn-hit"   onclick="triggerAnim('HIT')">⚡<br>HIT</button>
-      <button class="event-btn event-btn-error" onclick="triggerAnim('ERROR')">⚠️<br>ERROR</button>
-      <button class="event-btn event-btn-walk"  onclick="triggerAnim('WALK')">🟢<br>BASE POR BOLAS</button>
-      <button class="event-btn event-btn-so"    onclick="triggerAnim('STRIKEOUT')">🔴<br>STRIKE OUT</button>
-      <!-- Carrera visitante -->
-      <button class="event-btn event-btn-run-away" id="btn-run-away"
-              onclick="triggerRunAnim('away')"
-              style="border-color:#e85252;color:#e85252;background:#2a0808">
-        🏃<br>CARRERA<br><span id="run-away-name" style="font-size:0.7em;opacity:0.8">VISITANTE</span>
-      </button>
-      <!-- Carrera local -->
-      <button class="event-btn event-btn-run-home" id="btn-run-home"
-              onclick="triggerRunAnim('home')"
-              style="border-color:#4bc8e8;color:#4bc8e8;background:#082030">
-        🏃<br>CARRERA<br><span id="run-home-name" style="font-size:0.7em;opacity:0.8">LOCAL</span>
+      <button class="event-btn event-btn-hit"   onclick="triggerAnim('HIT')">HIT</button>
+      <button class="event-btn event-btn-error" onclick="triggerAnim('ERROR')">ERROR</button>
+      <button class="event-btn event-btn-walk"  onclick="triggerAnim('WALK')">BASE POR BOLAS</button>
+      <button class="event-btn event-btn-so"    onclick="triggerAnim('STRIKEOUT')">STRIKE OUT</button>
+      <!-- Carrera: el servidor deduce el equipo por isTop -->
+      <button class="event-btn" id="btn-run"
+              onclick="triggerRunAnim()"
+              style="border-color:#e8b84b;color:#e8b84b;background:#1a1400;grid-column:span 2">
+        CARRERA
       </button>
     </div>
   </div>
@@ -496,16 +490,6 @@ function renderState(s) {
       p.classList.toggle('selected', p.dataset.color === s[t+'Color'])
     );
   });
-
-  // Botones de carrera: actualizar nombre y color del equipo
-  const btnRunAway = document.getElementById('btn-run-away');
-  const btnRunHome = document.getElementById('btn-run-home');
-  document.getElementById('run-away-name').textContent = s.awayName || 'VISITANTE';
-  document.getElementById('run-home-name').textContent = s.homeName || 'LOCAL';
-  btnRunAway.style.borderColor = s.awayColor;
-  btnRunAway.style.color       = s.awayColor;
-  btnRunHome.style.borderColor = s.homeColor;
-  btnRunHome.style.color       = s.homeColor;
 
   // Scores
   document.getElementById('num-away').textContent = s.awayScore;
@@ -626,15 +610,10 @@ function triggerAnim(type) {
   setStatus(`🎬 Animación: ${type}`);
 }
 
-function triggerRunAnim(team) {
-  const name = team === 'away'
-    ? (currentState.awayName || 'VISITANTE')
-    : (currentState.homeName || 'LOCAL');
-  const color = team === 'away'
-    ? (currentState.awayColor || '#e85252')
-    : (currentState.homeColor || '#4bc8e8');
-  send('trigger_anim', { type: 'RUN', team_name: name, team_color: color });
-  setStatus(`🏃 Carrera: ${name}`);
+function triggerRunAnim() {
+  // El servidor conoce isTop y deduce qué equipo anota
+  send('trigger_anim', { type: 'RUN' });
+  setStatus('🏃 Carrera');
 }
 
 // ── BASES ──

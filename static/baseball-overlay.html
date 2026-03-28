@@ -15,9 +15,9 @@
 
   body {
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: flex-start;
-    padding: 24px;
+    padding: 0;
     font-family: 'Barlow Condensed', sans-serif;
   }
 
@@ -48,7 +48,7 @@
   .sb-brand { font-family:'Bebas Neue',sans-serif; font-size:0.95rem; color:#e8b84b; letter-spacing:0.2em; }
   .sb-inning-wrap { display:flex; align-items:center; gap:8px; }
   .sb-half-arrow { font-size:0.75rem; color:#8090b0; transition:transform 0.3s; }
-  .sb-half-arrow.bot { transform:rotate(180deg); }
+  .sb-half-arrow.bot { transform:rotate(360deg); }
   .sb-half-text  { font-size:0.6rem; color:#8090b0; letter-spacing:0.2em; text-transform:uppercase; }
   .sb-inning-num { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:#f0f2f8; letter-spacing:0.08em; }
 
@@ -88,7 +88,7 @@
     padding:0 18px;
     border-left:1px solid rgba(255,255,255,0.06);
   }
-  .diamond { position:relative; width:54px; height:40px; }
+  .diamond { position:relative; width:54px; height:38px; }
   .base { position:absolute; width:17px; height:17px; border:1.5px solid #4a5060; transform:rotate(45deg); border-radius:2px; transition:all 0.25s; }
   .base.on { background:#e8b84b; border-color:#e8b84b; box-shadow:0 0 12px rgba(232,184,75,0.65); }
   .b-1st { bottom:1px; right:1px; }
@@ -108,17 +108,47 @@
     opacity: 0;
     z-index: 10;
   }
-  .anim-label { font-size: 1.6rem; line-height: 1; }
-  .anim-team  { font-size: 1rem; opacity: 0.85; margin-top: 2px; }
+  /* El contenedor hace fade; el label hace zoom propio para efecto independiente */
+  .anim-label {
+    font-size: 1.6rem; line-height: 1;
+    display: inline-block;
+  }
+  .anim-team  { font-size: 1rem; opacity: 0.85; margin-top: 4px; display: inline-block; }
 
   .anim-overlay.active {
-    animation: animPop 2.5s forwards;
+    animation: animFade 2.5s forwards;
   }
-  @keyframes animPop {
-    0%   { opacity:0; transform:scale(0.88); }
-    12%  { opacity:1; transform:scale(1); }
-    85%  { opacity:1; transform:scale(1); }
-    100% { opacity:0; transform:scale(1.06); }
+  .anim-overlay.active .anim-label {
+    animation: animZoom 2.5s forwards;
+  }
+  .anim-overlay.active .anim-team {
+    animation: animZoomSub 2.5s forwards;
+  }
+
+  /* Fade del fondo */
+  @keyframes animFade {
+    0%   { opacity: 0; }
+    10%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  /* Zoom elástico del texto principal */
+  @keyframes animZoom {
+    0%   { transform: scale(0.5);  opacity: 0; }
+    15%  { transform: scale(1.18); opacity: 1; }
+    28%  { transform: scale(0.95); }
+    40%  { transform: scale(1.05); }
+    55%  { transform: scale(1.0);  }
+    80%  { transform: scale(1.0);  opacity: 1; }
+    100% { transform: scale(1.15); opacity: 0; }
+  }
+  /* Zoom más suave para el subtítulo de equipo */
+  @keyframes animZoomSub {
+    0%   { transform: scale(0.6);  opacity: 0; }
+    25%  { transform: scale(1.05); opacity: 1; }
+    40%  { transform: scale(1.0);  }
+    80%  { transform: scale(1.0);  opacity: 1; }
+    100% { transform: scale(1.08); opacity: 0; }
   }
 
   /* Tipos de evento — solo cambia fondo y color de texto */
@@ -129,29 +159,10 @@
   .anim-run       { background:linear-gradient(90deg,#0a0a1a,#060612); color:#fff; }
                     /* el color de texto se sobreescribe por JS con el color del equipo */
 
-  /* WS chip */
-  .ws-status {
-    position: fixed; top: 10px; right: 10px;
-    font-family:'Barlow Condensed',sans-serif; font-size:0.6rem;
-    letter-spacing:0.15em; text-transform:uppercase;
-    padding:3px 8px; border-radius:10px;
-    background:rgba(0,0,0,0.55); color:#6b7080;
-    border:1px solid #2a2d38; transition:all 0.3s;
-    display:flex; align-items:center; gap:5px;
-  }
-  .ws-status.on  { color:#52e88a; border-color:#52e88a; }
-  .ws-status.off { color:#e85252; border-color:#e85252; }
-  .ws-blink { width:5px; height:5px; border-radius:50%; background:currentColor; }
-  .ws-status.on .ws-blink { animation:blink 1.4s infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
 </style>
 </head>
 <body>
-
-<div class="ws-status off" id="ws-chip">
-  <span class="ws-blink"></span>
-  <span id="ws-chip-label">OFFLINE</span>
-</div>
 
 <div class="scoreboard">
 
@@ -214,7 +225,6 @@
         <div class="base b-2nd"  id="ov-b2"></div>
         <div class="base b-3rd"  id="ov-b3"></div>
         <div class="base b-1st"  id="ov-b1"></div>
-        <div class="base b-home"></div>
       </div>
     </div>
 
@@ -233,11 +243,11 @@
   let animTimer = null;
 
   const ANIM_CFG = {
-    'HIT':       { label: '⚡ HIT',           team: '',  cls: 'anim-hit'       },
-    'ERROR':     { label: '⚠️ ERROR',         team: '',  cls: 'anim-error'     },
-    'WALK':      { label: '🟢 BASE POR BOLAS', team: '', cls: 'anim-walk'      },
-    'STRIKEOUT': { label: '🔴 STRIKE OUT',     team: '',  cls: 'anim-strikeout' },
-    'RUN':       { label: '🏃 CARRERA',        team: '',  cls: 'anim-run'       },
+    'HIT':       { label: 'HIT',           team: '',  cls: 'anim-hit'       },
+    'ERROR':     { label: 'ERROR',         team: '',  cls: 'anim-error'     },
+    'WALK':      { label: 'BASE POR BOLAS', team: '', cls: 'anim-walk'      },
+    'STRIKEOUT': { label: 'STRIKE OUT',     team: '',  cls: 'anim-strikeout' },
+    'RUN':       { label: 'CARRERA',        team: '',  cls: 'anim-run'       },
   };
 
   function playAnim(event, teamName, teamColor) {
@@ -329,19 +339,11 @@
   }
 
   // ── WEBSOCKET ──
-  const chip      = el('ws-chip');
-  const chipLabel = el('ws-chip-label');
-
-  function setChip(online) {
-    chip.className        = `ws-status ${online ? 'on' : 'off'}`;
-    chipLabel.textContent = online ? 'LIVE' : 'OFFLINE';
-  }
-
   function connect() {
     const ws = new WebSocket(`ws://${location.host}/ws`);
-    ws.onopen    = () => setChip(true);
-    ws.onclose   = () => { setChip(false); setTimeout(connect, 3000); };
-    ws.onerror   = () => setChip(false);
+    ws.onopen    = () => {};
+    ws.onclose   = () => { setTimeout(connect, 3000); };
+    ws.onerror   = () => {};
     ws.onmessage = e => {
       try { applyState(JSON.parse(e.data)); }
       catch(err) { console.error('WS parse error', err); }
