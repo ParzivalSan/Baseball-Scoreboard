@@ -1,11 +1,18 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
+import os
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Servir GIFs estáticos desde la carpeta gif/
+GIF_DIR = Path("gif")
+GIF_DIR.mkdir(exist_ok=True)
+app.mount("/gif", StaticFiles(directory="gif"), name="gif")
 
 clients: list[WebSocket] = []
 MAX_INNINGS = 9
@@ -90,7 +97,6 @@ def handle_action(action, payload):
         state["balls"]=0; state["strikes"]=0; _add_out()
     elif action=="out": _add_out()
     elif action=="out_confirm": _add_out()
-    elif action=="double_play_confirm": _add_out(); _add_out()
     elif action=="ball_minus":   state["balls"]  =max(0,state["balls"]-1)
     elif action=="strike_minus": state["strikes"]=max(0,state["strikes"]-1)
     elif action=="out_minus":    state["outs"]   =max(0,state["outs"]-1)
@@ -121,6 +127,10 @@ def handle_action(action, payload):
         else:
             tn=payload.get("team_name",""); tc=payload.get("team_color","")
         return {"event":evt,"eventTeam":tn,"eventTeamColor":tc}
+    elif action=="trigger_gif":
+        # Retransmite el nombre del gif a todos los clientes (overlay lo muestra)
+        filename=payload.get("filename","")
+        return {"gif":filename}
     return None
 
 async def broadcast_all(extra=None):
@@ -141,6 +151,17 @@ def serve_overlay(): return FileResponse("static/baseball-overlay.html")
 
 @app.get("/scoreboard")
 def serve_scoreboard(): return FileResponse("static/baseball-scoreboard.html")
+
+@app.get("/api/gifs")
+def list_gifs():
+    """Devuelve la lista de archivos GIF en la carpeta gif/."""
+    if not GIF_DIR.exists():
+        return JSONResponse([])
+    files = sorted(
+        f.name for f in GIF_DIR.iterdir()
+        if f.suffix.lower() in (".gif", ".webp", ".apng", ".png", ".jpg", ".jpeg")
+    )
+    return JSONResponse(files)
 
 @app.websocket("/ws")
 async def ws_endpoint(ws: WebSocket):

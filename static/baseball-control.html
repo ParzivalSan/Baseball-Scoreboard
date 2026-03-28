@@ -129,6 +129,39 @@
   .content-wrapper{padding-top:12px;animation:fadeIn .3s ease-out;}
   @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 
+  /* ── GIF TAB ── */
+  .gif-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:10px; }
+  .gif-card {
+    background:var(--bg); border:1.5px solid var(--border);
+    border-radius:8px; overflow:hidden; cursor:pointer;
+    transition:all .18s; display:flex; flex-direction:column;
+    font-family:'Barlow Condensed',sans-serif;
+  }
+  .gif-card:hover { border-color:var(--accent); transform:scale(1.03); }
+  .gif-card.playing { border-color:var(--green); box-shadow:0 0 14px rgba(82,232,138,.25); }
+  .gif-card img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:#0a0c12; }
+  .gif-card-name {
+    padding:6px 8px; font-size:.72rem; letter-spacing:.06em;
+    color:var(--muted); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+  }
+  .gif-card.playing .gif-card-name { color:var(--green); }
+  .gif-empty { font-family:'Barlow Condensed',sans-serif; font-size:.85rem; color:var(--muted); text-align:center; padding:32px 0; letter-spacing:.08em; }
+  .gif-stop-btn {
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.82rem;
+    letter-spacing:.1em; text-transform:uppercase;
+    background:#2a0808; border:1.5px solid var(--red); color:var(--red);
+    border-radius:7px; padding:9px 16px; cursor:pointer; transition:all .15s;
+  }
+  .gif-stop-btn:hover { background:#3a1010; }
+  .gif-stop-btn:disabled { opacity:.35; cursor:not-allowed; }
+  .gif-refresh-btn {
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.78rem;
+    letter-spacing:.1em; text-transform:uppercase;
+    background:#1c1f2b; border:1px solid var(--border); color:var(--muted);
+    border-radius:6px; padding:7px 14px; cursor:pointer; transition:all .15s;
+  }
+  .gif-refresh-btn:hover { color:var(--text); border-color:var(--muted); }
+
   @media(max-width:640px){.grid{grid-template-columns:1fr;}.grid-wide{grid-column:1;}.teams-row{grid-template-columns:1fr;}header{flex-direction:column;align-items:flex-start;}.events-grid{grid-template-columns:1fr 1fr;}.stat-grid{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
@@ -159,6 +192,7 @@
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('game')">⚾ Partido</button>
   <button class="tab-btn" onclick="switchTab('editor')">📋 Editor Entradas</button>
+  <button class="tab-btn" onclick="switchTab('gifs')">🎬 GIFs</button>
 </div>
 
 <!-- ══════════════════ TAB PARTIDO ══════════════════ -->
@@ -316,6 +350,26 @@
 </div>
 </div><!-- /tab-editor -->
 
+<!-- ══════════════════ TAB GIFs ══════════════════ -->
+<div class="tab-panel" id="tab-gifs">
+<div class="grid">
+  <div class="card grid-wide">
+    <div class="card-title">GIFs de overlay</div>
+    <p style="font-family:'Barlow Condensed',sans-serif;font-size:.72rem;color:var(--muted);letter-spacing:.05em;line-height:1.5">
+      Coloca los archivos GIF en la carpeta <code style="background:#1a1d28;padding:2px 6px;border-radius:3px;color:var(--accent)">gif/</code> del servidor.
+      Pulsa una imagen para lanzarla en el overlay. El GIF permanece visible hasta que pulses ⏹ Detener.
+    </p>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+      <button class="gif-stop-btn" id="gif-stop-btn" onclick="stopGif()" disabled>⏹ Detener GIF</button>
+      <button class="gif-refresh-btn" onclick="loadGifList()">↺ Recargar lista</button>
+    </div>
+    <div class="gif-grid" id="gif-grid">
+      <div class="gif-empty" id="gif-empty">Cargando...</div>
+    </div>
+  </div>
+</div>
+</div><!-- /tab-gifs -->
+
 <div class="status-bar">
   <span id="status-msg">Conectando al servidor WebSocket...</span>
   <span id="status-clock">--:--:--</span>
@@ -468,7 +522,6 @@ const MODAL_CFG={
   strikeout:  {icon:'🔴',title:'¿STRIKE OUT?',      sub:'3er strike — se sumará 1 out automáticamente.',              btnCls:'btn-red',   btnText:'Sí, Strike Out',    action:'strikeout_confirm'},
   walk:       {icon:'🟢',title:'¿BASE POR BOLAS?',  sub:'4ª bola — corredores avanzan. Bases llenas → carrera.',     btnCls:'btn-green', btnText:'Sí, Base por Bolas',action:'walk_confirm'},
   out:        {icon:'⚾',title:'¿3er OUT?',          sub:'Se cambiará de entrada. Bases y conteo quedarán en cero.',  btnCls:'btn-gold',  btnText:'Sí, cambiar entrada',action:'out_confirm'},
-  doubleplay: {icon:'⚡',title:'¿DOBLE PLAY?',       sub:'Se sumarán 2 outs consecutivos. Puede cambiar de entrada.', btnCls:'btn-orange',btnText:'Sí, Doble Play',    action:'double_play_confirm'},
 };
 function openModal(type){
   const cfg=MODAL_CFG[type];
@@ -484,7 +537,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 // ── ANIMACIONES ──
 function triggerAnim(type){
-  if(type==='DOUBLEPLAY'){openModal('doubleplay');return;}
   send('trigger_anim',{type});setStatus(`🎬 ${type}`);
 }
 function triggerRunAnim(){send('trigger_anim',{type:'RUN'});setStatus('🏃 Carrera');}
@@ -500,6 +552,65 @@ function tick(){$('status-clock').textContent=new Date().toLocaleTimeString('es-
 setInterval(tick,1000);tick();
 
 connect();
+
+// ── GIF TAB ──
+let currentGif = '';   // nombre del gif activo en overlay ('' = ninguno)
+
+async function loadGifList() {
+  const grid  = document.getElementById('gif-grid');
+  const empty = document.getElementById('gif-empty');
+  try {
+    const res  = await fetch('/api/gifs');
+    const list = await res.json();
+    grid.innerHTML = '';
+    if (!list.length) {
+      grid.innerHTML = '<div class="gif-empty">No hay GIFs en la carpeta /gif/</div>';
+      return;
+    }
+    list.forEach(name => {
+      const card = document.createElement('div');
+      card.className = 'gif-card' + (name === currentGif ? ' playing' : '');
+      card.id = `gif-card-${CSS.escape(name)}`;
+      card.onclick = () => launchGif(name);
+      // Vista previa: para GIFs funciona directamente; para otros formatos también
+      card.innerHTML = `
+        <img src="/gif/${encodeURIComponent(name)}" alt="${name}" loading="lazy">
+        <div class="gif-card-name" title="${name}">${name}</div>`;
+      grid.appendChild(card);
+    });
+  } catch(e) {
+    grid.innerHTML = '<div class="gif-empty">Error al cargar la lista — ¿está corriendo el servidor?</div>';
+  }
+}
+
+function launchGif(name) {
+  currentGif = name;
+  send('trigger_gif', { filename: name });
+  setStatus(`🎬 GIF: ${name}`);
+  // Actualizar estado visual de las cards
+  document.querySelectorAll('.gif-card').forEach(c => c.classList.remove('playing'));
+  const active = document.getElementById(`gif-card-${CSS.escape(name)}`);
+  if (active) active.classList.add('playing');
+  document.getElementById('gif-stop-btn').disabled = false;
+}
+
+function stopGif() {
+  currentGif = '';
+  send('trigger_gif', { filename: '' });
+  setStatus('⏹ GIF detenido');
+  document.querySelectorAll('.gif-card').forEach(c => c.classList.remove('playing'));
+  document.getElementById('gif-stop-btn').disabled = true;
+}
+
+// Cargar lista al iniciar y al cambiar a la pestaña GIFs
+const _origSwitchTab = switchTab;
+// eslint-disable-next-line no-global-assign
+switchTab = function(name) {
+  _origSwitchTab(name);
+  if (name === 'gifs') loadGifList();
+};
+// Carga inicial en background (por si se abre directo en esa pestaña)
+setTimeout(loadGifList, 800);
 </script>
 </body>
 </html>
