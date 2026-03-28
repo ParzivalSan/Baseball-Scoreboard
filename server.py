@@ -12,7 +12,7 @@ MAX_INNINGS = 9
 
 state = {
     "awayName":"VISITANTE","homeName":"LOCAL",
-    "awayColor":"#e85252","homeColor":"#4bc8e8",
+    "awayColor":"#02437d","homeColor":"#a40133",
     "brand":"BASEBALL",
     "awayScore":0,"homeScore":0,
     "awayHits":0,"homeHits":0,
