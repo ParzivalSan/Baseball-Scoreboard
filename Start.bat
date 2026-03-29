@@ -7,6 +7,7 @@ echo Opening control panel...
 start http://localhost:8000/control
 start http://localhost:8000/overlay
 start http://localhost:8000/scoreboard
+start http://localhost:8000/lineup
 
 :: 2. Ejecutar uvicorn
 :: Si usas un entorno virtual, descomenta la siguiente linea:

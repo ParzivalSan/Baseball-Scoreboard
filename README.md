@@ -48,6 +48,7 @@ Execute start.bat or uvicorn server:app --host 0.0.0.0 --port 8000
    ```
    http://localhost:3000/overlay
    http://localhost:3000/scoreboard
+   http://localhost:3000/lineup
    ```
 4. Set resolution (recommended):
 
@@ -64,6 +65,7 @@ From the control interface you can:
 * Update score
 * Change inning
 * Manage bases
+* Manage the line-up
 * Trigger animations:
 
   * `HIT`
@@ -93,6 +95,4 @@ If you like this project:
 * Share it
 * Use it in your streams
 
----
 
-[1]: https://github.com/FC-softwares/baseball-scoreboard?utm_source=chatgpt.com "GitHub - FC-softwares/baseball-scoreboard: Baseball Scoreboard for youtube LIVE. You can use this tool as overlay for your baseball live-stream. In the last version we have integrated Animations, new professional looking graphic, MyBallClub overriding and more..."

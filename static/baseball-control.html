@@ -162,6 +162,63 @@
   }
   .gif-refresh-btn:hover { color:var(--text); border-color:var(--muted); }
 
+
+  /* ── LINEUP TAB ── */
+  .lineup-team-sel {
+    display: flex; gap: 8px; margin-bottom: 4px;
+  }
+  .lineup-team-btn {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+    font-size: .8rem; letter-spacing: .12em; text-transform: uppercase;
+    padding: 7px 20px; border-radius: 6px; border: 1.5px solid var(--border);
+    background: var(--bg); color: var(--muted); cursor: pointer; transition: all .15s;
+  }
+  .lineup-team-btn.active { color: #fff; border-color: transparent; }
+  .lineup-coach-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--border); margin-bottom: 4px;
+  }
+  .lu-lbl {
+    font-family: 'Barlow Condensed', sans-serif; font-size: .68rem;
+    letter-spacing: .12em; color: var(--muted); text-transform: uppercase;
+    white-space: nowrap; min-width: 70px;
+  }
+  .lu-table { width: 100%; border-collapse: collapse; }
+  .lu-table th {
+    font-family: 'Barlow Condensed', sans-serif; font-size: .6rem;
+    letter-spacing: .18em; color: var(--muted); text-transform: uppercase;
+    padding: 6px 4px; text-align: left; border-bottom: 1px solid var(--border);
+  }
+  .lu-table th.center { text-align: center; }
+  .lu-table td { padding: 4px 3px; border-bottom: 1px solid rgba(255,255,255,.03); vertical-align: middle; }
+  .lu-order {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem;
+    color: var(--accent); text-align: center; width: 28px; display: inline-block;
+  }
+  .lu-input {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 5px;
+    padding: 6px 8px; color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif; font-size: .88rem; font-weight: 700;
+    width: 100%; transition: border-color .2s;
+  }
+  .lu-input:focus { outline: none; border-color: var(--accent); }
+  .lu-select {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 5px;
+    padding: 6px 4px; color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif; font-size: .88rem; font-weight: 700;
+    width: 100%; cursor: pointer; transition: border-color .2s;
+  }
+  .lu-select:focus { outline: none; border-color: var(--accent); }
+  .lu-num {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 5px;
+    padding: 6px 4px; color: var(--text);
+    font-family: 'Bebas Neue', sans-serif; font-size: .95rem;
+    text-align: center; width: 48px; transition: border-color .2s;
+  }
+  .lu-num:focus { outline: none; border-color: var(--accent); }
+  .lu-slot-10 td { opacity: .6; }  /* DH/Pitcher sin bate — visualmente diferenciado */
+  .lu-slot-10 .lu-order { color: var(--muted); }
+
   @media(max-width:640px){.grid{grid-template-columns:1fr;}.grid-wide{grid-column:1;}.teams-row{grid-template-columns:1fr;}header{flex-direction:column;align-items:flex-start;}.events-grid{grid-template-columns:1fr 1fr;}.stat-grid{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
@@ -192,7 +249,8 @@
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('game')">⚾ Partido</button>
   <button class="tab-btn" onclick="switchTab('editor')">📋 Editor Entradas</button>
-  <button class="tab-btn" onclick="switchTab('gifs')">🎬 GIFs</button>
+  <button class="tab-btn" onclick="switchTab('lineup')">👥 Alineación</button>
+  <button class="tab-btn" onclick="switchTab('gifs')">🎬 GIFs</button> 
 </div>
 
 <!-- ══════════════════ TAB PARTIDO ══════════════════ -->
@@ -317,11 +375,13 @@
     </div>
   </div>
 
-  <div class="card" style="justify-content:center">
-    <div class="card-title">Reset</div>
-    <button class="btn btn-red btn-wide" onclick="resetAll()">🔄 Reset Completo</button>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;color:var(--muted);text-align:center;letter-spacing:.08em;line-height:1.5">Resetea marcador, hits, errores,<br>conteo, bases e inning</div>
-  </div>
+  <details class="card">
+    <summary class="card-title">Reset <span class="toggle-icon">▾</span></summary>
+    <div class="content-wrapper" style="display:flex;flex-direction:column;gap:10px;align-items:center;">
+      <button class="btn btn-red btn-wide" onclick="resetAll()">🔄 Reset Completo</button>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;color:var(--muted);text-align:center;letter-spacing:.08em;line-height:1.5">Resetea marcador, hits, errores,<br>conteo, bases e inning</div>
+    </div>
+  </details>
 
 </div>
 </div><!-- /tab-game -->
@@ -369,6 +429,56 @@
   </div>
 </div>
 </div><!-- /tab-gifs -->
+
+<!-- ══════════════════ TAB LINEUP ══════════════════ -->
+<div class="tab-panel" id="tab-lineup">
+<div class="grid">
+  <div class="card grid-wide">
+    <div class="card-title">Alineación — Overlay de lineup</div>
+
+    <!-- Selector de equipo (para editar y para mostrar en overlay) -->
+    <div class="lineup-team-sel">
+      <button class="lineup-team-btn active" id="lu-btn-away" onclick="selectLineupTeam('away')">
+        <span id="lu-btn-away-name">VISITANTE</span>
+      </button>
+      <button class="lineup-team-btn" id="lu-btn-home" onclick="selectLineupTeam('home')">
+        <span id="lu-btn-home-name">LOCAL</span>
+      </button>
+      <div style="flex:1"></div>
+      <button class="btn btn-gold" id="lu-overlay-btn" onclick="sendLineupToOverlay()" style="font-size:.78rem;padding:7px 16px;">
+        📺 Mostrar en Overlay
+      </button>
+    </div>
+
+    <!-- Coach -->
+    <div class="lineup-coach-row">
+      <span class="lu-lbl">Head Coach</span>
+      <input class="lu-input" id="lu-coach" type="text" placeholder="Nombre del entrenador"
+             onchange="sendCoach(this.value)">
+    </div>
+
+    <!-- Tabla de jugadores -->
+    <div style="overflow-x:auto;">
+      <table class="lu-table">
+        <thead>
+          <tr>
+            <th class="center" style="width:32px">#</th>
+            <th style="min-width:160px">NOMBRE</th>
+            <th class="center" style="width:72px">POSICIÓN</th>
+            <th class="center" style="width:52px">CAMISETA</th>
+          </tr>
+        </thead>
+        <tbody id="lu-tbody">
+          <!-- generado por JS -->
+        </tbody>
+      </table>
+    </div>
+    <p style="font-family:'Barlow Condensed',sans-serif;font-size:.68rem;color:var(--muted);letter-spacing:.06em;line-height:1.5">
+      Slot 10 reservado para Pitcher en caso de DH (no batea). La alineación se guarda en el servidor.
+    </p>
+  </div>
+</div>
+</div><!-- /tab-lineup -->
 
 <div class="status-bar">
   <span id="status-msg">Conectando al servidor WebSocket...</span>
@@ -611,6 +721,137 @@ switchTab = function(name) {
 };
 // Carga inicial en background (por si se abre directo en esa pestaña)
 setTimeout(loadGifList, 800);
+
+// ══════════════════════════════════════════════════════
+//  LINEUP TAB
+// ══════════════════════════════════════════════════════
+const POSITIONS = ['C','P','1B','2B','3B','SS','LF','CF','RF','DH'];
+let luTeam = 'away';      // equipo actualmente visible en la pestaña
+let luBuilt = false;      // tabla construida
+
+function selectLineupTeam(team) {
+  luTeam = team;
+  // Botones
+  ['away','home'].forEach(t => {
+    const btn = $(`lu-btn-${t}`);
+    btn.classList.toggle('active', t === team);
+    if (t === team) {
+      btn.style.background = CS[t+'Color'] || '#666';
+    } else {
+      btn.style.background = '';
+    }
+  });
+  // Rellenar tabla con datos del equipo seleccionado
+  renderLineupTable(CS);
+}
+
+function buildLineupTable() {
+  const tbody = $('lu-tbody');
+  tbody.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const slot = i;
+    const isSlot10 = (i === 9);
+    const tr = document.createElement('tr');
+    if (isSlot10) tr.className = 'lu-slot-10';
+
+    // Orden al bate
+    const tdOrder = document.createElement('td');
+    tdOrder.style.textAlign = 'center';
+    tdOrder.innerHTML = `<span class="lu-order">${isSlot10 ? '—' : slot+1}</span>`;
+    tr.appendChild(tdOrder);
+
+    // Nombre
+    const tdName = document.createElement('td');
+    const inpName = document.createElement('input');
+    inpName.type = 'text'; inpName.className = 'lu-input';
+    inpName.id = `lu-name-${slot}`; inpName.placeholder = 'Nombre jugador';
+    inpName.addEventListener('change', () => sendPlayer(slot, 'name', inpName.value));
+    tdName.appendChild(inpName); tr.appendChild(tdName);
+
+    // Posición
+    const tdPos = document.createElement('td');
+    const sel = document.createElement('select');
+    sel.className = 'lu-select'; sel.id = `lu-pos-${slot}`;
+    sel.innerHTML = '<option value="">—</option>' + POSITIONS.map(p => `<option value="${p}">${p}</option>`).join('');
+    sel.addEventListener('change', () => sendPlayer(slot, 'position', sel.value));
+    tdPos.appendChild(sel); tr.appendChild(tdPos);
+
+    // Número de camiseta
+    const tdNum = document.createElement('td');
+    const inpNum = document.createElement('input');
+    inpNum.type = 'text'; inpNum.className = 'lu-num';
+    inpNum.id = `lu-num-${slot}`; inpNum.placeholder = '00'; inpNum.maxLength = 3;
+    inpNum.addEventListener('change', () => sendPlayer(slot, 'number', inpNum.value));
+    tdNum.appendChild(inpNum); tr.appendChild(tdNum);
+
+    tbody.appendChild(tr);
+  }
+  luBuilt = true;
+}
+
+function renderLineupTable(s) {
+  if (!s || !s.lineup) return;
+  if (!luBuilt) buildLineupTable();
+
+  const teamData = s.lineup[luTeam] || {};
+  const players  = teamData.players || [];
+  const coach    = teamData.coach   || '';
+
+  // Coach
+  if (document.activeElement !== $('lu-coach'))
+    $('lu-coach').value = coach;
+
+  // Jugadores
+  for (let i = 0; i < 10; i++) {
+    const p = players[i] || {};
+    const nameEl = $(`lu-name-${i}`);
+    const posEl  = $(`lu-pos-${i}`);
+    const numEl  = $(`lu-num-${i}`);
+    if (nameEl && document.activeElement !== nameEl) nameEl.value = p.name || '';
+    if (posEl  && document.activeElement !== posEl)  posEl.value  = p.position || '';
+    if (numEl  && document.activeElement !== numEl)  numEl.value  = p.number || '';
+  }
+
+  // Botones de equipo — color dinámico
+  ['away','home'].forEach(t => {
+    const btn = $(`lu-btn-${t}`);
+    $(`lu-btn-${t}-name`).textContent = t === 'away' ? (s.awayName||'VISITANTE') : (s.homeName||'LOCAL');
+    if (t === luTeam) btn.style.background = s[t+'Color'] || '#666';
+  });
+}
+
+function sendPlayer(slot, field, value) {
+  send('set_lineup_player', { team: luTeam, slot, field, value });
+}
+
+function sendCoach(value) {
+  send('set_lineup_coach', { team: luTeam, value });
+}
+
+function sendLineupToOverlay() {
+  send('set_lineup_showing', { team: luTeam });
+  const teamName = luTeam === 'away' ? (CS.awayName || 'VISITANTE') : (CS.homeName || 'LOCAL');
+  const btn = document.getElementById('lu-overlay-btn');
+  btn.textContent = `✅ Mostrando: ${teamName}`;
+  btn.style.background = luTeam === 'away' ? (CS.awayColor || '#e8b84b') : (CS.homeColor || '#e8b84b');
+  setStatus(`📺 Mostrando lineup: ${teamName}`);
+}
+
+// Enganchar al switchTab para renderizar al entrar
+const _origSwitchTab2 = switchTab;
+switchTab = function(name) {
+  _origSwitchTab2(name);
+  if (name === 'lineup') renderLineupTable(CS);
+};
+
+// Actualizar tabla cuando llega estado del servidor (si el tab está activo)
+const _origRenderState = renderState;
+renderState = function(s) {
+  _origRenderState(s);
+  if (document.getElementById('tab-lineup').classList.contains('active')) {
+    renderLineupTable(s);
+  }
+};
 </script>
 </body>
 </html>

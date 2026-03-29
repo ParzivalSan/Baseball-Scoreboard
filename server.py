@@ -28,6 +28,18 @@ state = {
     "inning":1,"isTop":True,
     "balls":0,"strikes":0,"outs":0,
     "bases":{"1st":False,"2nd":False,"3rd":False},
+    # Lineup: dos equipos, 10 slots de jugador + coach + equipo visible en overlay
+    "lineup": {
+        "showing": "away",   # "away" | "home"
+        "away": {
+            "coach": "",
+            "players": [{"order": i+1, "name": "", "position": "", "number": ""} for i in range(10)]
+        },
+        "home": {
+            "coach": "",
+            "players": [{"order": i+1, "name": "", "position": "", "number": ""} for i in range(10)]
+        }
+    },
 }
 
 def _inning_idx():
@@ -128,9 +140,23 @@ def handle_action(action, payload):
             tn=payload.get("team_name",""); tc=payload.get("team_color","")
         return {"event":evt,"eventTeam":tn,"eventTeamColor":tc}
     elif action=="trigger_gif":
-        # Retransmite el nombre del gif a todos los clientes (overlay lo muestra)
         filename=payload.get("filename","")
         return {"gif":filename}
+    elif action=="set_lineup_player":
+        team  = payload.get("team")          # "away" | "home"
+        slot  = payload.get("slot", 0)       # 0-9
+        field = payload.get("field")         # "name" | "position" | "number" | "order"
+        val   = payload.get("value", "")
+        if team in ("away","home") and 0 <= slot < 10 and field in ("name","position","number","order"):
+            state["lineup"][team]["players"][slot][field] = val
+    elif action=="set_lineup_coach":
+        team = payload.get("team")
+        if team in ("away","home"):
+            state["lineup"][team]["coach"] = payload.get("value","")
+    elif action=="set_lineup_showing":
+        team = payload.get("team")
+        if team in ("away","home"):
+            state["lineup"]["showing"] = team
     return None
 
 async def broadcast_all(extra=None):
@@ -151,6 +177,9 @@ def serve_overlay(): return FileResponse("static/baseball-overlay.html")
 
 @app.get("/scoreboard")
 def serve_scoreboard(): return FileResponse("static/baseball-scoreboard.html")
+
+@app.get("/lineup")
+def serve_lineup(): return FileResponse("static/baseball-lineup.html")
 
 @app.get("/api/gifs")
 def list_gifs():

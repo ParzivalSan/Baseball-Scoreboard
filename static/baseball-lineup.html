@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Baseball Lineup Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: transparent;
+    overflow: hidden;
+  }
+  body {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  /* ── CONTENEDOR PRINCIPAL ── */
+  .lineup-wrap {
+    position: relative;
+    width: 860px;
+    animation: slideIn .5s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes slideIn {
+    from { opacity:0; transform:translateY(-10px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* ── HEADER — nombre del equipo ── */
+  .lineup-header {
+    background: linear-gradient(90deg,rgba(8,12,18,0.9) 0%,rgba(17,24,37,0.9) 100%);
+    backdrop-filter: blur(6px);
+    border-radius: 10px 10px 0 0;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.07);
+  }
+  .lineup-indicator {
+    width: 5px; height: 38px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .lineup-team-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: .12em;
+    color: #f0f2f8;
+    flex: 1;
+  }
+  .lineup-coach-label {
+    font-size: .75rem;
+    letter-spacing: .18em;
+    color: #6b7080;
+    text-transform: uppercase;
+    margin-right: 6px;
+  }
+  .lineup-coach-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #a0a8c0;
+    letter-spacing: .04em;
+  }
+
+  /* ── CAMPO SVG + JUGADORES ── */
+  .field-area {
+    position: relative;
+    width: 860px;
+    height: 640px;
+    background: rgba(8,10,16,.6);
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+    box-shadow: 0 16px 80px rgba(0,0,0,.92), 0 0 0 1px rgba(255,255,255,.07);
+  }
+
+  /* SVG del campo ocupa todo el área */
+  .field-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0.9;
+  }
+
+  /* ── TARJETAS DE JUGADOR ── */
+  .player-card {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .player-card.hidden { display: none; }
+
+  .pc-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem;
+    line-height: 1;
+    text-shadow: 0 2px 10px rgba(0,0,0,.9), 0 0 20px rgba(0,0,0,.7);
+    letter-spacing: .04em;
+  }
+  .pc-pos {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.65);
+    background: rgba(0,0,0,.6);
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .pc-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f0f2f8;
+    letter-spacing: .03em;
+    text-shadow: 0 1px 8px rgba(0,0,0,.95);
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
+  .pc-order {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: .85rem;
+    color: rgba(255,255,255,.45);
+    letter-spacing: .06em;
+  }
+
+  /* ── PITCHER separado (slot 10 / DH mode) ── */
+  /* Nota: si slot 10 tiene posición P, se coloca en el montículo.
+     Si es DH (otro jugador en P), el slot 10 se muestra como P sin orden al bate. */
+
+  /* ── DH sin posición en campo — se muestra en una esquina ── */
+  .dh-card {
+    position: absolute;
+    bottom: 20px; right: 20px;
+    background: rgba(8,10,20,.9);
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 9px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .dh-card.hidden { display: none; }
+  .dh-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: .12em;
+    color: #e8b84b;
+    background: rgba(232,184,75,.15);
+    border: 1px solid rgba(232,184,75,.3);
+    border-radius: 5px;
+    padding: 3px 8px;
+  }
+  .dh-info { display: flex; flex-direction: column; }
+  .dh-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem; font-weight: 700;
+    color: #f0f2f8; letter-spacing: .03em;
+  }
+  .dh-num {
+    font-size: .9rem; color: #6b7080; letter-spacing: .06em;
+  }
+</style>
+</head>
+<body>
+<div class="lineup-wrap" id="lineup-wrap">
+
+  <!-- Header -->
+  <div class="lineup-header">
+    <div class="lineup-indicator" id="lu-ind"></div>
+    <div class="lineup-team-name" id="lu-team-name">EQUIPO</div>
+    <div>
+      <span class="lineup-coach-label">HC</span>
+      <span class="lineup-coach-name" id="lu-coach-name">—</span>
+    </div>
+  </div>
+
+  <!-- Área de campo -->
+  <div class="field-area" id="field-area">
+
+    <!-- Campo de béisbol SVG (vista top-down estilizada) -->
+  <svg width="100%" height="100%" viewBox="0 0 700 520" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
+      <rect x="0" y="0" width="700" height="520" style="fill:rgb(7,9,13);fill-opacity:0;"/>
+      <path d="M350,490L62.656,260C130.365,58.073 281.667,39.643 350,32C562.383,68.081 599.596,156.224 645.299,244.74L350,490Z" style="fill:url(#_Radial1);fill-rule:nonzero;"/>
+      <path d="M350,490L217.539,375.951C237.005,291.667 299.015,270.878 350,271.156C401.166,271.436 471.914,285.716 489.688,368.307L350,490Z" style="fill:rgb(42,26,10);fill-rule:nonzero;"/>
+      <path d="M350,490L62.656,261C94.818,166.352 154.336,66.747 350,32C533.815,71.826 577.591,127.904 645.299,247.096L350,490Z" style="fill:none;fill-rule:nonzero;stroke:rgb(120,80,30);stroke-opacity:0.3;stroke-width:12px;"/>
+      <path d="M350,471L78.75,244.74" style="fill:none;fill-rule:nonzero;stroke:white;stroke-opacity:0.18;stroke-width:1.5px;"/>
+      <path d="M350,471L629.375,235.938" style="fill:none;fill-rule:nonzero;stroke:white;stroke-opacity:0.18;stroke-width:1.5px;"/>
+      <path d="M350,470L460,380L350,295L240,380L350,470Z" style="fill:rgb(180,120,50);fill-opacity:0.12;fill-rule:nonzero;stroke:white;stroke-opacity:0.35;stroke-width:1.5px;"/>
+      <g transform="matrix(0.707107,0.707107,-0.707107,0.707107,403.845671,-212.969696)">
+          <path d="M466,376L466,386C466,387.104 465.104,388 464,388L454,388C452.896,388 452,387.104 452,386L452,376C452,374.896 452.896,374 454,374L464,374C465.104,374 466,374.896 466,376Z" style="fill:rgb(224,232,240);fill-opacity:0.9;"/>
+      </g>
+      <g transform="matrix(0.707107,0.707107,-0.707107,0.707107,311.109127,-161.083874)">
+          <path d="M357,290L357,300C357,301.104 356.104,302 355,302L345,302C343.896,302 343,301.104 343,300L343,290C343,288.896 343.896,288 345,288L355,288C356.104,288 357,288.896 357,290Z" style="fill:rgb(224,232,240);fill-opacity:0.9;"/>
+      </g>
+      <g transform="matrix(0.707107,0.707107,-0.707107,0.707107,339.994949,-58.820418)">
+          <path d="M248,376L248,386C248,387.104 247.104,388 246,388L236,388C234.896,388 234,387.104 234,386L234,376C234,374.896 234.896,374 236,374L246,374C247.104,374 248,374.896 248,376Z" style="fill:rgb(224,232,240);fill-opacity:0.9;"/>
+      </g>
+      <path d="M350,480L360,472L360,462L340,462L340,472L350,480Z" style="fill:rgb(224,232,240);fill-opacity:0.85;fill-rule:nonzero;"/>
+      <ellipse cx="350" cy="383" rx="14" ry="10" style="fill:rgb(140,90,35);fill-opacity:0.6;stroke:white;stroke-opacity:0.15;stroke-width:1px;"/>
+      <defs>
+          <radialGradient id="_Radial1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(429,0,0,429,350,396)"><stop offset="0" style="stop-color:rgb(15,36,20);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(7,16,10);stop-opacity:1"/></radialGradient>
+      </defs>
+  </svg>
+
+
+
+    <!-- Tarjetas de jugadores — posicionadas por JS -->
+    <!-- C -->  <div class="player-card" id="pc-C"  style="left:54%;top:88%;"></div>
+    <!-- P -->  <div class="player-card" id="pc-P"  style="left:50%;top:69%;"></div>
+    <!-- 1B --> <div class="player-card" id="pc-1B" style="left:67%;top:66%;"></div>
+    <!-- 2B --> <div class="player-card" id="pc-2B" style="left:62%;top:52%;"></div>
+    <!-- 3B --> <div class="player-card" id="pc-3B" style="left:33%;top:65%;"></div>
+    <!-- SS --> <div class="player-card" id="pc-SS" style="left:38%;top:52%;"></div>
+    <!-- LF --> <div class="player-card" id="pc-LF" style="left:22%;top:33%;"></div>
+    <!-- CF --> <div class="player-card" id="pc-CF" style="left:50%;top:16%;"></div>
+    <!-- RF --> <div class="player-card" id="pc-RF" style="left:78%;top:33%;"></div>
+
+    <!-- DH (no tiene posición en campo) -->
+    <div class="dh-card hidden" id="dh-card">
+      <span class="dh-badge">DH</span>
+      <div class="dh-info">
+        <div class="dh-name" id="dh-name">—</div>
+        <div class="dh-num" id="dh-num">#00</div>
+      </div>
+    </div>
+
+  </div><!-- /field-area -->
+</div><!-- /lineup-wrap -->
+
+<script>
+  const $ = id => document.getElementById(id);
+  const SUFFIXES = ['','ST','ND','RD','TH','TH','TH','TH','TH','TH'];
+
+  // Posiciones que van al campo vs DH que va a esquina
+  const FIELD_POSITIONS = ['C','P','1B','2B','3B','SS','LF','CF','RF'];
+
+  // Últimos datos cacheados para no redibujar si no cambia nada relevante
+  let lastTeam = null;
+  let teamColor = '#e8b84b';
+
+  function renderLineup(s) {
+    if (!s || !s.lineup) return;
+
+    const showing = s.lineup.showing || 'away';
+    const data    = s.lineup[showing] || {};
+    const players = data.players || [];
+    const coach   = data.coach   || '';
+
+    // Color y nombre del equipo
+    teamColor = s[showing + 'Color'] || '#e8b84b';
+    const teamName = s[showing + 'Name'] || (showing === 'away' ? 'VISITANTE' : 'LOCAL');
+
+    // Header
+    $('lu-ind').style.background = teamColor;
+    $('lu-team-name').textContent = teamName;
+    $('lu-coach-name').textContent = coach || '—';
+
+    // Limpiar todas las posiciones del campo
+    FIELD_POSITIONS.forEach(pos => {
+      const card = $(`pc-${pos}`);
+      card.innerHTML = '';
+      card.classList.add('hidden');
+    });
+    $('dh-card').classList.add('hidden');
+
+    // Asignar jugadores a posiciones
+    // Los primeros 9 slots son los bateadores del 1 al 9
+    // El slot 10 (índice 9) es el pitcher en modo DH (no batea)
+
+    players.forEach((p, i) => {
+      if (!p.name && !p.position) return;  // slot vacío
+      const pos    = p.position || '';
+      const name   = p.name    || '';
+      const num    = p.number  || '';
+      const order  = i < 9 ? (i + 1) : null;  // slot 10 no tiene orden
+      const isDH   = (pos === 'DH');
+      const isP10  = (i === 9 && pos === 'P'); // pitcher en slot 10
+
+      if (isDH) {
+        // DH: mostrar en tarjeta de esquina
+        $('dh-name').textContent = name;
+        $('dh-num').textContent  = num ? `#${num}` : '';
+        $('dh-card').classList.remove('hidden');
+      } else if (FIELD_POSITIONS.includes(pos)) {
+        const card = $(`pc-${pos}`);
+        if (!card) return;
+        // Construir contenido de la tarjeta
+        card.innerHTML = `
+          <div class="pc-num" style="color:${teamColor}">${num || '—'}</div>
+          <div class="pc-pos">${pos}</div>
+          <div class="pc-name">${name}</div>
+          ${order ? `<div class="pc-order">${order}</div>` : ''}
+        `;
+        card.classList.remove('hidden');
+      }
+    });
+  }
+
+  // ── WEBSOCKET ──
+  function connect() {
+    const ws = new WebSocket(`ws://${location.host}/ws`);
+    ws.onopen    = () => {};
+    ws.onclose   = () => { setTimeout(connect, 3000); };
+    ws.onerror   = () => {};
+    ws.onmessage = e => {
+      try { renderLineup(JSON.parse(e.data)); }
+      catch(err) { console.error('WS parse error', err); }
+    };
+  }
+  connect();
+</script>
+</body>
+</html>

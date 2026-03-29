@@ -14,10 +14,12 @@
   }
 
   body {
+    width: 1920px;
+    height: 1080px;
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
-    padding: 0;
+    padding: 28px;          /* distancia al borde de pantalla */
     font-family: 'Barlow Condensed', sans-serif;
   }
 
@@ -26,11 +28,10 @@
     display: flex;
     position: relative;
     flex-direction: column;
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 8px 48px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.07);
-    min-width: 420px;
-    max-width: 560px;
+    box-shadow: 0 12px 60px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.08);
+    width: 520px;           /* ancho fijo para 1080p */
     animation: slideUp 0.5s cubic-bezier(0.22,1,0.36,1);
   }
   @keyframes slideUp {
@@ -42,41 +43,41 @@
   .sb-topbar {
     background: linear-gradient(90deg, #080c12 0%, #111825 100%);
     display: flex; align-items: center; justify-content: space-between;
-    padding: 5px 14px;
+    padding: 7px 18px;
     border-bottom: 1px solid rgba(255,255,255,0.07);
   }
-  .sb-brand { font-family:'Bebas Neue',sans-serif; font-size:0.95rem; color:#e8b84b; letter-spacing:0.2em; }
-  .sb-inning-wrap { display:flex; align-items:center; gap:8px; }
-  .sb-half-arrow { font-size:0.75rem; color:#8090b0; transition:transform 0.3s; }
+  .sb-brand { font-family:'Bebas Neue',sans-serif; font-size:1.15rem; color:#e8b84b; letter-spacing:0.2em; }
+  .sb-inning-wrap { display:flex; align-items:center; gap:10px; }
+  .sb-half-arrow { font-size:0.9rem; color:#8090b0; transition:transform 0.3s; }
   .sb-half-arrow.bot { transform:rotate(360deg); }
-  .sb-half-text  { font-size:0.6rem; color:#8090b0; letter-spacing:0.2em; text-transform:uppercase; }
-  .sb-inning-num { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:#f0f2f8; letter-spacing:0.08em; }
+  .sb-half-text  { font-size:0.72rem; color:#8090b0; letter-spacing:0.2em; text-transform:uppercase; }
+  .sb-inning-num { font-family:'Bebas Neue',sans-serif; font-size:1.35rem; color:#f0f2f8; letter-spacing:0.08em; }
 
   /* Main */
   .sb-main { display:flex; background:rgba(8,10,16,0.97); }
 
   /* Teams */
   .sb-teams { flex:1; display:flex; flex-direction:column; }
-  .sb-team-row { display:flex; align-items:center; padding:0 14px; height:46px; gap:10px; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .sb-team-row { display:flex; align-items:center; padding:0 18px; height:58px; gap:12px; border-bottom:1px solid rgba(255,255,255,0.04); }
   .sb-team-row:last-child { border-bottom:none; }
-  .sb-indicator { width:3px; height:30px; border-radius:2px; flex-shrink:0; transition:background 0.4s; }
-  .sb-team-name { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:0.06em; flex:1; color:#f0f2f8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .sb-score { font-family:'Bebas Neue',sans-serif; font-size:2.3rem; letter-spacing:0.04em; min-width:38px; text-align:right; transition:color 0.4s; }
+  .sb-indicator { width:4px; height:36px; border-radius:2px; flex-shrink:0; transition:background 0.4s; }
+  .sb-team-name { font-family:'Bebas Neue',sans-serif; font-size:1.75rem; letter-spacing:0.06em; flex:1; color:#f0f2f8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sb-score { font-family:'Bebas Neue',sans-serif; font-size:3rem; letter-spacing:0.04em; min-width:52px; text-align:right; transition:color 0.4s; }
   .sb-score.flash { animation:scoreFlash 0.45s ease forwards; }
   @keyframes scoreFlash { 0%{transform:scale(1.4)} 100%{transform:scale(1)} }
 
   /* Count — dots: B=3, S=2, O=2 */
   .sb-count {
     background: linear-gradient(180deg,#0d1520 0%,#090c14 100%);
-    display:flex; flex-direction:column; justify-content:center; gap:7px;
-    padding:8px 16px;
+    display:flex; flex-direction:column; justify-content:center; gap:9px;
+    padding:10px 20px;
     border-left:1px solid rgba(255,255,255,0.06);
-    min-width: 80px;
+    min-width: 100px;
   }
-  .count-row { display:flex; align-items:center; gap:8px; }
-  .count-lbl { font-size:0.8rem; letter-spacing:0.2em; color:#6b7080; text-transform:uppercase; width:10px; flex-shrink:0; }
-  .dots { display:flex; gap:5px; }
-  .dot { width:9px; height:9px; border-radius:50%; border:1.5px solid #6b7080; transition:all 0.2s; }
+  .count-row { display:flex; align-items:center; gap:10px; }
+  .count-lbl { font-size:1rem; letter-spacing:0.2em; color:#6b7080; text-transform:uppercase; width:13px; flex-shrink:0; }
+  .dots { display:flex; gap:7px; }
+  .dot { width:12px; height:12px; border-radius:50%; border:2px solid #6b7080; transition:all 0.2s; }
   .dot.ball   { background:#52e88a; border-color:#52e88a; box-shadow:0 0 6px #52e88a; }
   .dot.strike { background:#e85252; border-color:#e85252; box-shadow:0 0 6px #e85252; }
   .dot.out    { background:#e8b84b; border-color:#e8b84b; box-shadow:0 0 6px #e8b84b; }
@@ -85,11 +86,11 @@
   .sb-bases {
     background: linear-gradient(180deg,#090c14 0%,#060810 100%);
     display:flex; align-items:center; justify-content:center;
-    padding:0 18px;
+    padding:0 22px;
     border-left:1px solid rgba(255,255,255,0.06);
   }
-  .diamond { position:relative; width:54px; height:38px; }
-  .base { position:absolute; width:17px; height:17px; border:1.5px solid #4a5060; transform:rotate(45deg); border-radius:2px; transition:all 0.25s; }
+  .diamond { position:relative; width:70px; height:50px; }
+  .base { position:absolute; width:22px; height:22px; border:2px solid #4a5060; transform:rotate(45deg); border-radius:3px; transition:all 0.25s; }
   .base.on { background:#e8b84b; border-color:#e8b84b; box-shadow:0 0 12px rgba(232,184,75,0.65); }
   .b-1st { bottom:1px; right:1px; }
   .b-2nd { top:1px; left:50%; transform:translateX(-50%) rotate(45deg); }
@@ -110,10 +111,10 @@
   }
   /* El contenedor hace fade; el label hace zoom propio para efecto independiente */
   .anim-label {
-    font-size: 3rem; line-height: 1;
+    font-size: 2.2rem; line-height: 1;
     display: inline-block;
   }
-  .anim-team  { font-size: 2.8rem; opacity: 0.85; margin-top: 4px; display: inline-block; }
+  .anim-team  { font-size: 1.8rem; opacity: 0.85; margin-top: 4px; display: inline-block; }
 
   .anim-overlay.active {
     animation: animFade 2.5s forwards;
