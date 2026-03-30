@@ -3,7 +3,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
-import os
+import os, asyncio, json
+try:
+    import urllib.request, urllib.parse
+except ImportError:
+    pass
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -28,6 +32,9 @@ state = {
     "inning":1,"isTop":True,
     "balls":0,"strikes":0,"outs":0,
     "bases":{"1st":False,"2nd":False,"3rd":False},
+    # Tiempo — se actualiza desde Open-Meteo cada 5 min
+    "weatherLocation": "Barcelona",
+    "weather": {"temp": None, "windspeed": None, "winddir": None, "code": None, "ok": False},
     # Lineup: dos equipos, 10 slots de jugador + coach + equipo visible en overlay
     "lineup": {
         "showing": "away",   # "away" | "home"
@@ -157,7 +164,62 @@ def handle_action(action, payload):
         team = payload.get("team")
         if team in ("away","home"):
             state["lineup"]["showing"] = team
+    elif action=="set_weather_location":
+        loc = payload.get("value", "").strip()
+        if loc:
+            state["weatherLocation"] = loc
+            # Disparar fetch inmediato en background
+            asyncio.create_task(fetch_weather_and_broadcast())
     return None
+
+# ─── TIEMPO (Open-Meteo — sin API key) ───────────────────────────────────────
+
+def _geocode(location: str):
+    """Geocodifica un nombre de lugar → (lat, lon). Sin dependencias externas."""
+    url = "https://geocoding-api.open-meteo.com/v1/search?" + urllib.parse.urlencode({
+        "name": location, "count": 1, "language": "es", "format": "json"
+    })
+    with urllib.request.urlopen(url, timeout=8) as r:
+        data = json.loads(r.read())
+    results = data.get("results", [])
+    if not results:
+        raise ValueError(f"Localización no encontrada: {location}")
+    return results[0]["latitude"], results[0]["longitude"]
+
+def _weather(lat: float, lon: float):
+    """Llama a Open-Meteo y devuelve los datos actuales."""
+    url = "https://api.open-meteo.com/v1/forecast?" + urllib.parse.urlencode({
+        "latitude": lat, "longitude": lon,
+        "current": "temperature_2m,wind_speed_10m,wind_direction_10m,weather_code",
+        "wind_speed_unit": "kmh", "timezone": "auto"
+    })
+    with urllib.request.urlopen(url, timeout=8) as r:
+        data = json.loads(r.read())
+    curr = data.get("current", {})
+    return {
+        "temp":      curr.get("temperature_2m"),
+        "windspeed": curr.get("wind_speed_10m"),
+        "winddir":   curr.get("wind_direction_10m"),
+        "code":      curr.get("weather_code"),
+        "ok":        True,
+    }
+
+async def fetch_weather_and_broadcast():
+    """Obtiene el tiempo para state["weatherLocation"] y hace broadcast."""
+    try:
+        lat, lon = await asyncio.to_thread(_geocode, state["weatherLocation"])
+        wx = await asyncio.to_thread(_weather, lat, lon)
+        state["weather"] = wx
+    except Exception as e:
+        print(f"[weather] Error: {e}")
+        state["weather"]["ok"] = False
+    await broadcast_all()
+
+async def _weather_loop():
+    """Tarea de fondo: actualiza el tiempo cada 5 minutos."""
+    while True:
+        await fetch_weather_and_broadcast()
+        await asyncio.sleep(300)   # 5 min
 
 async def broadcast_all(extra=None):
     payload=dict(state)
@@ -167,6 +229,10 @@ async def broadcast_all(extra=None):
         try: await c.send_json(payload)
         except: dead.append(c)
     for d in dead: clients.remove(d)
+
+@app.on_event("startup")
+async def _startup():
+    asyncio.create_task(_weather_loop())
 
 @app.get("/")
 @app.get("/control")

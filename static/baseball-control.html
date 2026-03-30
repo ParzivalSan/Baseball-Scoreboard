@@ -450,6 +450,19 @@
       </button>
     </div>
 
+    <!-- Localización del partido (para el tiempo) -->
+    <div class="lineup-coach-row">
+      <span class="lu-lbl">📍 Lugar</span>
+      <input class="lu-input" id="lu-location" type="text"
+             placeholder="Campo Municipal Perez de Rozas, Barcelona"
+             style="flex:1"
+             onchange="sendWeatherLocation(this.value)">
+      <button class="btn btn-muted" onclick="sendWeatherLocation($('lu-location').value)"
+              style="font-size:.72rem;padding:5px 10px;margin-left:6px;white-space:nowrap;">
+        🌤 Actualizar
+      </button>
+    </div>
+
     <!-- Coach -->
     <div class="lineup-coach-row">
       <span class="lu-lbl">Head Coach</span>
@@ -797,6 +810,11 @@ function renderLineupTable(s) {
   const players  = teamData.players || [];
   const coach    = teamData.coach   || '';
 
+  // Localización
+  const locEl = $('lu-location');
+  if (locEl && document.activeElement !== locEl)
+    locEl.value = s.weatherLocation || 'Campo Municipal Perez de Rozas, Barcelona';
+
   // Coach
   if (document.activeElement !== $('lu-coach'))
     $('lu-coach').value = coach;
@@ -826,6 +844,13 @@ function sendPlayer(slot, field, value) {
 
 function sendCoach(value) {
   send('set_lineup_coach', { team: luTeam, value });
+}
+
+function sendWeatherLocation(value) {
+  const loc = value.trim();
+  if (!loc) return;
+  send('set_weather_location', { value: loc });
+  setStatus(`🌤 Actualizando tiempo para: ${loc}`);
 }
 
 function sendLineupToOverlay() {
