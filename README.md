@@ -4,6 +4,8 @@ A fast, lightweight and customizable **baseball scoreboard overlay** designed fo
 
 Built to provide **real-time game visualization**, animations (Hit, Error, Walk, Strikeout) and a clean broadcast-style UI.
 
+<img width="416" height="128" alt="image" src="https://github.com/user-attachments/assets/7feb4904-85a6-435e-924a-6f51578d98db" />
+
 ---
 
 ## 🚀 Features
@@ -72,6 +74,8 @@ From the control interface you can:
   * `ERROR`
   * `WALK`
   * `STRIKEOUT`
+
+<img width="811" height="920" alt="image" src="https://github.com/user-attachments/assets/af0a5550-fe74-435e-829c-66a97f72de33" />
 
 ---
 
