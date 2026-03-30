@@ -12,11 +12,12 @@ Built to provide **real-time game visualization**, animations (Hit, Error, Walk,
 
 * ⚡ **Live Scoreboard Control Panel**
 * 🎬 **Triggerable Animations**
-
   * Hit
   * Error
-  * Walk (Base on Balls)
+  * Walk
   * Strikeout
+  * Run
+  * Custom GIF
 * 🖥️ **OBS Browser Source Ready**
 * 🎨 **Customizable UI (colors, layout, animations)**
 * 🔄 **Real-time updates**
@@ -32,8 +33,11 @@ Built to provide **real-time game visualization**, animations (Hit, Error, Walk,
 git clone https://github.com/ParzivalSan/Baseball-Scoreboard.git
 cd Baseball-Scoreboard
 ```
+## 2. Install python requirements
 
-### 2. Open the control panel
+pip install requirements.txt
+
+### 3. Open the control panel
 
 Execute start.bat or uvicorn server:app --host 0.0.0.0 --port 8000
 
