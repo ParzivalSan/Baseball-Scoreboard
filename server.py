@@ -79,13 +79,23 @@ def _add_out():
         else: state["isTop"]=True; state["inning"]+=1; _mark_inning_played()
 
 def _walk():
-    b=state["bases"]; is_top=state["isTop"]
-    team_key="awayScore" if is_top else "homeScore"
+    b = state["bases"]
+    is_top = state["isTop"]
+    team_key = "awayScore" if is_top else "homeScore"
+    # Carrera si bases llenas
     if b["1st"] and b["2nd"] and b["3rd"]:
-        state[team_key]+=1; _add_inning_run(is_top)
-    if b["2nd"]: b["3rd"]=True
-    if b["1st"]: b["2nd"]=True
-    b["1st"]=True; state["balls"]=0; state["strikes"]=0
+        state[team_key] += 1
+        _add_inning_run(is_top)
+    # Mover corredores SOLO si están forzados (orden inverso)
+    if b["1st"] and b["2nd"]:
+        b["3rd"] = True
+    if b["1st"]:
+        b["2nd"] = True
+    # Bateador a primera
+    b["1st"] = True
+
+    state["balls"] = 0
+    state["strikes"] = 0
 
 def handle_action(action, payload):
     if   action=="set_away_name":  state["awayName"] =payload.get("value",state["awayName"])
