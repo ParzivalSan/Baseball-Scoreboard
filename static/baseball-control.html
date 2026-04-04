@@ -219,6 +219,18 @@
   .lu-slot-10 td { opacity: .6; }  /* DH/Pitcher sin bate — visualmente diferenciado */
   .lu-slot-10 .lu-order { color: var(--muted); }
 
+  /* ── QR TAB ── */
+  .qr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+  .qr-card{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px;font-family:'Barlow Condensed',sans-serif;}
+  .qr-card-title{font-size:.65rem;letter-spacing:.22em;color:var(--accent);text-transform:uppercase;font-weight:700;}
+  .qr-card-desc{font-size:.68rem;letter-spacing:.06em;color:var(--muted);text-align:center;line-height:1.5;}
+  .qr-box{background:#fff;border-radius:6px;padding:10px;display:flex;align-items:center;justify-content:center;}
+  .qr-url{font-size:.68rem;color:#506080;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:5px;padding:5px 10px;word-break:break-all;text-align:center;width:100%;}
+  .qr-copy-btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:6px 14px;cursor:pointer;transition:all .15s;width:100%;}
+  .qr-copy-btn:hover{color:var(--text);border-color:var(--muted);}
+  .qr-copy-btn.copied{background:#0d2a18;border-color:var(--green);color:var(--green);}
+  .qr-ip-badge{font-family:'Barlow Condensed',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.08em;color:var(--accent);background:rgba(232,184,75,.1);border:1px solid rgba(232,184,75,.3);border-radius:6px;padding:6px 14px;text-align:center;}
+
   @media(max-width:640px){.grid{grid-template-columns:1fr;}.grid-wide{grid-column:1;}.teams-row{grid-template-columns:1fr;}header{flex-direction:column;align-items:flex-start;}.events-grid{grid-template-columns:1fr 1fr;}.stat-grid{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
@@ -250,7 +262,8 @@
   <button class="tab-btn active" onclick="switchTab('game')">⚾ Partido</button>
   <button class="tab-btn" onclick="switchTab('editor')">📋 Editor Entradas</button>
   <button class="tab-btn" onclick="switchTab('lineup')">👥 Alineación</button>
-  <button class="tab-btn" onclick="switchTab('gifs')">🎬 GIFs</button> 
+  <button class="tab-btn" onclick="switchTab('gifs')">🎬 GIFs</button>
+  <button class="tab-btn" onclick="switchTab('qr')">📱 Móvil</button>
 </div>
 
 <!-- ══════════════════ TAB PARTIDO ══════════════════ -->
@@ -292,16 +305,6 @@
         <div class="score-num" id="num-home" style="color:#4bc8e8">0</div>
         <div class="score-btns"><button class="btn btn-minus" onclick="changeScore('home',-1)">−</button><button class="btn btn-plus" onclick="changeScore('home',1)">+1</button></div>
       </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Inning</div>
-    <div class="inning-row">
-      <button class="btn-nav" onclick="changeInning(-1)">◀</button>
-      <div class="inning-box"><div class="inning-num" id="inning-num">1</div><div class="inning-half" id="inning-half">TOP ▲</div></div>
-      <button class="btn-nav" onclick="changeInning(1)">▶</button>
-      <button class="btn btn-gold" onclick="toggleHalf()" style="padding:9px 14px;font-size:.82rem;">⇅ SWAP</button>
     </div>
   </div>
 
@@ -372,6 +375,16 @@
       <button class="base-btn" id="bbtn-2nd" onclick="toggleBase('2nd')">2ª Base</button>
       <button class="base-btn" id="bbtn-1st" onclick="toggleBase('1st')">1ª Base</button>
       <button class="base-btn btn-muted" style="grid-column:1/-1" onclick="clearBases()">Limpiar bases</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Inning</div>
+    <div class="inning-row">
+      <button class="btn-nav" onclick="changeInning(-1)">◀</button>
+      <div class="inning-box"><div class="inning-num" id="inning-num">1</div><div class="inning-half" id="inning-half">TOP ▲</div></div>
+      <button class="btn-nav" onclick="changeInning(1)">▶</button>
+      <button class="btn btn-gold" onclick="toggleHalf()" style="padding:9px 14px;font-size:.82rem;">⇅ SWAP</button>
     </div>
   </div>
 
@@ -450,19 +463,6 @@
       </button>
     </div>
 
-    <!-- Localización del partido (para el tiempo) -->
-    <div class="lineup-coach-row">
-      <span class="lu-lbl">📍 Lugar</span>
-      <input class="lu-input" id="lu-location" type="text"
-             placeholder="Campo Municipal Perez de Rozas, Barcelona"
-             style="flex:1"
-             onchange="sendWeatherLocation(this.value)">
-      <button class="btn btn-muted" onclick="sendWeatherLocation($('lu-location').value)"
-              style="font-size:.72rem;padding:5px 10px;margin-left:6px;white-space:nowrap;">
-        🌤 Actualizar
-      </button>
-    </div>
-
     <!-- Coach -->
     <div class="lineup-coach-row">
       <span class="lu-lbl">Head Coach</span>
@@ -493,9 +493,22 @@
 </div>
 </div><!-- /tab-lineup -->
 
+<!-- ══════════════════ TAB QR ══════════════════ -->
+<div class="tab-panel" id="tab-qr">
+<div class="grid">
+  <div class="card grid-wide">
+    <div class="card-title">Acceso desde móvil</div>
+    <p style="font-family:'Barlow Condensed',sans-serif;font-size:.72rem;color:var(--muted);letter-spacing:.05em;line-height:1.5">
+      Conecta el móvil a la <strong style="color:var(--text)">misma red WiFi</strong> y escanea el código QR de la pantalla que quieras abrir.
+    </p>
+    <div class="qr-ip-badge" id="qr-ip-badge">Detectando IP local...</div>
+    <div class="qr-grid" id="qr-grid"></div>
+  </div>
+</div>
+</div><!-- /tab-qr -->
+
 <div class="status-bar">
   <span id="status-msg">Conectando al servidor WebSocket...</span>
-  <span>Created by github.com/ParzivalSan</span>
   <span id="status-clock">--:--:--</span>
 </div>
 
@@ -509,7 +522,7 @@ function switchTab(name){
 }
 
 // ── PRESETS ──
-const PRESETS=['#02437d','#a40133','#1b7a7b','#e61b1f','#002d64','#227abb','#fb9606','#010101','#b0b8c8','#e87452'];
+const PRESETS=['#02437d','#a40133','#f7e94e','#52e88a','#4bc8e8','#5f7fff','#c84be8','#ffffff','#b0b8c8','#e87452'];
 ['away','home'].forEach(t=>{
   const wrap=document.getElementById(`presets-${t}`);
   PRESETS.forEach(c=>{
@@ -811,11 +824,6 @@ function renderLineupTable(s) {
   const players  = teamData.players || [];
   const coach    = teamData.coach   || '';
 
-  // Localización
-  const locEl = $('lu-location');
-  if (locEl && document.activeElement !== locEl)
-    locEl.value = s.weatherLocation || 'Campo Municipal Perez de Rozas, Barcelona';
-
   // Coach
   if (document.activeElement !== $('lu-coach'))
     $('lu-coach').value = coach;
@@ -847,13 +855,6 @@ function sendCoach(value) {
   send('set_lineup_coach', { team: luTeam, value });
 }
 
-function sendWeatherLocation(value) {
-  const loc = value.trim();
-  if (!loc) return;
-  send('set_weather_location', { value: loc });
-  setStatus(`🌤 Actualizando tiempo para: ${loc}`);
-}
-
 function sendLineupToOverlay() {
   send('set_lineup_showing', { team: luTeam });
   const teamName = luTeam === 'away' ? (CS.awayName || 'VISITANTE') : (CS.homeName || 'LOCAL');
@@ -877,6 +878,83 @@ renderState = function(s) {
   if (document.getElementById('tab-lineup').classList.contains('active')) {
     renderLineupTable(s);
   }
+};
+
+// ══════════════════════════════════════════════════════
+//  QR TAB
+// ══════════════════════════════════════════════════════
+const QR_PAGES = [
+  { id:'control',    title:'⚾ Control',    desc:'Panel de control completo',     path:'/control'    },
+  { id:'overlay',    title:'📺 Overlay',    desc:'Marcador de jugada (OBS)',       path:'/overlay'    },
+  { id:'scoreboard', title:'📊 Scoreboard', desc:'Marcador entrada×entrada (OBS)', path:'/scoreboard' },
+  { id:'lineup',     title:'👥 Lineup',     desc:'Alineación con campo (OBS)',     path:'/lineup'     },
+];
+
+let qrBuilt = false;
+
+async function buildQrTab() {
+  if (qrBuilt) return;
+  qrBuilt = true;
+
+  // Pedir la IP al endpoint dedicado del servidor
+  let baseUrl = `${location.protocol}//${location.host}`;
+  try {
+    const res  = await fetch('/api/localip');
+    const data = await res.json();
+    if (data.ip && data.ip !== '127.0.0.1') {
+      baseUrl = `http://${data.ip}:${data.port}`;
+    }
+  } catch(e) { console.warn('No se pudo obtener IP local:', e); }
+
+  $('qr-ip-badge').textContent = `📡 IP local: ${baseUrl}`;
+
+  // Cargar qrcodejs dinámicamente solo cuando se necesita
+  await new Promise((resolve, reject) => {
+    if (window.QRCode) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+
+  const grid = $('qr-grid');
+  grid.innerHTML = '';
+  QR_PAGES.forEach(page => {
+    const url = baseUrl + page.path;
+    const card = document.createElement('div');
+    card.className = 'qr-card';
+    card.innerHTML = `
+      <div class="qr-card-title">${page.title}</div>
+      <p class="qr-card-desc">${page.desc}</p>
+      <div class="qr-box" id="qrbox-${page.id}"></div>
+      <div class="qr-url">${url}</div>
+      <button class="qr-copy-btn" id="qrcopy-${page.id}">📋 Copiar URL</button>
+    `;
+    grid.appendChild(card);
+    document.getElementById(`qrcopy-${page.id}`).onclick = () => qrCopy(url, page.id);
+    new QRCode(document.getElementById(`qrbox-${page.id}`), {
+      text: url, width: 140, height: 140,
+      colorDark: '#000000', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+  });
+}
+
+function qrCopy(url, id) {
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = $(`qrcopy-${id}`);
+    const orig = btn.textContent;
+    btn.textContent = '✅ Copiado';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// Construir al entrar en la pestaña por primera vez
+const _origSwitchTabQr = switchTab;
+switchTab = function(name) {
+  _origSwitchTabQr(name);
+  if (name === 'qr') buildQrTab();
 };
 </script>
 </body>
