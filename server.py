@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
-import os, asyncio, json
+import os, asyncio, json, socket
 try:
     import urllib.request, urllib.parse
 except ImportError:
@@ -28,7 +28,7 @@ state = {
     "awayScore":0,"homeScore":0,
     "awayHits":0,"homeHits":0,
     "awayErrors":0,"homeErrors":0,
-    "inningScores":[[None,None]]*MAX_INNINGS,
+    "inningScores":[[None, None] for _ in range(MAX_INNINGS)],
     "inning":1,"isTop":True,
     "balls":0,"strikes":0,"outs":0,
     "bases":{"1st":False,"2nd":False,"3rd":False},
@@ -48,6 +48,19 @@ state = {
         }
     },
 }
+def get_local_ip():
+    """Obtiene la IP local real (LAN) del servidor."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # No hace falta que 8.8.8.8 responda, solo fuerza la interfaz correcta
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+    except Exception:
+        ip = "127.0.0.1"
+    finally:
+        s.close()
+    return ip
+
 
 def _inning_idx():
     return min(state["inning"]-1, MAX_INNINGS-1)
@@ -79,23 +92,13 @@ def _add_out():
         else: state["isTop"]=True; state["inning"]+=1; _mark_inning_played()
 
 def _walk():
-    b = state["bases"]
-    is_top = state["isTop"]
-    team_key = "awayScore" if is_top else "homeScore"
-    # Carrera si bases llenas
+    b=state["bases"]; is_top=state["isTop"]
+    team_key="awayScore" if is_top else "homeScore"
     if b["1st"] and b["2nd"] and b["3rd"]:
-        state[team_key] += 1
-        _add_inning_run(is_top)
-    # Mover corredores SOLO si están forzados (orden inverso)
-    if b["1st"] and b["2nd"]:
-        b["3rd"] = True
-    if b["1st"]:
-        b["2nd"] = True
-    # Bateador a primera
-    b["1st"] = True
-
-    state["balls"] = 0
-    state["strikes"] = 0
+        state[team_key]+=1; _add_inning_run(is_top)
+    if b["2nd"]: b["3rd"]=True
+    if b["1st"]: b["2nd"]=True
+    b["1st"]=True; state["balls"]=0; state["strikes"]=0
 
 def handle_action(action, payload):
     if   action=="set_away_name":  state["awayName"] =payload.get("value",state["awayName"])
@@ -256,6 +259,11 @@ def serve_scoreboard(): return FileResponse("static/baseball-scoreboard.html")
 
 @app.get("/lineup")
 def serve_lineup(): return FileResponse("static/baseball-lineup.html")
+
+@app.get("/api/localip")
+def get_ip():
+    """Devuelve la IP local del servidor como JSON."""
+    return JSONResponse({"ip": get_local_ip(), "port": 8000})
 
 @app.get("/api/gifs")
 def list_gifs():
