@@ -18,6 +18,11 @@ GIF_DIR = Path("gif")
 GIF_DIR.mkdir(exist_ok=True)
 app.mount("/gif", StaticFiles(directory="gif"), name="gif")
 
+# Servir logos desde la carpeta logos/
+LOGOS_DIR = Path("logos")
+LOGOS_DIR.mkdir(exist_ok=True)
+app.mount("/logos", StaticFiles(directory="logos"), name="logos")
+
 clients: list[WebSocket] = []
 MAX_INNINGS = 9
 
@@ -32,6 +37,7 @@ state = {
     "inning":1,"isTop":True,
     "balls":0,"strikes":0,"outs":0,
     "bases":{"1st":False,"2nd":False,"3rd":False},
+    "awayLogo":"","homeLogo":"",
     # Tiempo — se actualiza desde Open-Meteo cada 5 min
     "weatherLocation": "Barcelona",
     "weather": {"temp": None, "windspeed": None, "winddir": None, "code": None, "ok": False},
@@ -159,6 +165,10 @@ def handle_action(action, payload):
         else:
             tn=payload.get("team_name",""); tc=payload.get("team_color","")
         return {"event":evt,"eventTeam":tn,"eventTeamColor":tc}
+    elif action=="set_away_logo":
+        state["awayLogo"] = payload.get("value","")
+    elif action=="set_home_logo":
+        state["homeLogo"] = payload.get("value","")
     elif action=="trigger_gif":
         filename=payload.get("filename","")
         return {"gif":filename}
@@ -264,6 +274,15 @@ def serve_lineup(): return FileResponse("static/baseball-lineup.html")
 def get_ip():
     """Devuelve la IP local del servidor como JSON."""
     return JSONResponse({"ip": get_local_ip(), "port": 8000})
+
+@app.get("/api/logos")
+def list_logos():
+    """Lista de imágenes en la carpeta logos/."""
+    if not LOGOS_DIR.exists():
+        return JSONResponse([])
+    exts = {".png",".jpg",".jpeg",".gif",".webp",".svg"}
+    files = sorted(f.name for f in LOGOS_DIR.iterdir() if f.suffix.lower() in exts)
+    return JSONResponse(files)
 
 @app.get("/api/gifs")
 def list_gifs():

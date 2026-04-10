@@ -1,0 +1,3 @@
+::1. Verificar que las dependencias de Python estén instaladas
+echo Checking Python dependencies...
+pip install -r requirements.txt

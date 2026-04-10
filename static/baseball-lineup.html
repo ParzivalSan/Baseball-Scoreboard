@@ -236,6 +236,8 @@
   }
   .weather-widget.hidden { display: none; }
 
+  .lu-logo{height:44px;width:44px;object-fit:contain;border-radius:5px;flex-shrink:0;display:none;}
+  .lu-logo.visible{display:block;}
 </style>
 </head>
 <body>
@@ -244,6 +246,7 @@
   <!-- Header -->
   <div class="lineup-header">
     <div class="lineup-indicator" id="lu-ind"></div>
+    <img class="lu-logo" id="lu-logo" src="" alt="">
     <div class="lineup-team-name" id="lu-team-name">EQUIPO</div>
     <div>
       <span class="lineup-coach-label">HC</span>
@@ -361,7 +364,19 @@
     const teamName = s[showing + 'Name'] || (showing === 'away' ? 'VISITANTE' : 'LOCAL');
 
     // Header
-    $('lu-ind').style.background = teamColor;
+    const logoUrl = s[showing + 'Logo'] || '';
+    const logoEl  = $('lu-logo');
+    const indEl   = $('lu-ind');
+    if (logoUrl) {
+      logoEl.src = logoUrl;
+      logoEl.classList.add('visible');
+      indEl.style.display = 'none';
+    } else {
+      logoEl.src = '';
+      logoEl.classList.remove('visible');
+      indEl.style.display = '';
+      indEl.style.background = teamColor;
+    }
     $('lu-team-name').textContent = teamName;
     $('lu-coach-name').textContent = coach || '—';
 

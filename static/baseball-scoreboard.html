@@ -56,6 +56,9 @@
   .row-inn-cell.active-inn{color:#e8b84b;text-shadow:0 0 18px rgba(232,184,75,.6);}
   .row-stat{width:78px;flex-shrink:0;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:1.9rem;}
   .row-total{font-size:2.4rem;}
+  /* Logo de equipo */
+  .row-logo{height:54px;width:54px;object-fit:contain;flex-shrink:0;border-radius:4px;display:none;}
+  .row-logo.visible{display:block;}
 </style>
 </head>
 <body>
@@ -87,7 +90,8 @@
     <div class="sb-row" id="row-away">
       <div class="row-team-name" id="sc-away-name">
         <div class="row-indicator" id="sc-away-ind"></div>
-        VISITANTE
+        <img class="row-logo" id="sc-away-logo" src="" alt="">
+        <span id="sc-away-nameTxt">VISITANTE</span>
       </div>
       <!-- 9 inning cells -->
       <div class="row-inn-cell blank" id="sc-away-i1">—</div>
@@ -109,7 +113,8 @@
     <div class="sb-row" id="row-home">
       <div class="row-team-name" id="sc-home-name">
         <div class="row-indicator" id="sc-home-ind"></div>
-        LOCAL
+        <img class="row-logo" id="sc-home-logo" src="" alt="">
+        <span id="sc-home-nameTxt">LOCAL</span>
       </div>
       <div class="row-inn-cell blank" id="sc-home-i1">—</div>
       <div class="row-inn-cell blank" id="sc-home-i2">—</div>
@@ -147,14 +152,28 @@
 
     // Colors
     const ac=s.awayColor||'#e85252', hc=s.homeColor||'#4bc8e8';
-    $('sc-away-ind').style.background=ac; $('sc-home-ind').style.background=hc;
     $('sc-away-r').style.color=ac;  $('sc-home-r').style.color=hc;
     $('sc-away-h').style.color=ac;  $('sc-home-h').style.color=hc;
     $('sc-away-e').style.color=ac;  $('sc-home-e').style.color=hc;
 
-    // Names (keep indicator inside)
-    $('sc-away-name').innerHTML=`<div class="row-indicator" id="sc-away-ind" style="background:${ac}"></div>${s.awayName||'VISITANTE'}`;
-    $('sc-home-name').innerHTML=`<div class="row-indicator" id="sc-home-ind" style="background:${hc}"></div>${s.homeName||'LOCAL'}`;
+    // Names + logo (elementos fijos, sin innerHTML para no destruir los img)
+    [['away', ac, s.awayName||'VISITANTE', s.awayLogo||''],
+     ['home', hc, s.homeName||'LOCAL',     s.homeLogo||'']
+    ].forEach(([t, color, name, logo]) => {
+      $(`sc-${t}-nameTxt`).textContent = name;
+      const ind = $(`sc-${t}-ind`);
+      const img = $(`sc-${t}-logo`);
+      if (logo) {
+        ind.style.display = 'none';
+        img.src = logo;
+        img.classList.add('visible');
+      } else {
+        ind.style.display = '';
+        ind.style.background = color;
+        img.src = '';
+        img.classList.remove('visible');
+      }
+    });
 
     // Totals
     $('sc-away-r').textContent=s.awayScore??0;

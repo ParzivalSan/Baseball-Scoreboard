@@ -231,6 +231,24 @@
   .qr-copy-btn.copied{background:#0d2a18;border-color:var(--green);color:var(--green);}
   .qr-ip-badge{font-family:'Barlow Condensed',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.08em;color:var(--accent);background:rgba(232,184,75,.1);border:1px solid rgba(232,184,75,.3);border-radius:6px;padding:6px 14px;text-align:center;}
 
+  /* ── LOGO PICKER ── */
+  .logo-selector-wrap{position:relative;}
+  .logo-selector-btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;background:var(--bg);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 12px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .logo-selector-btn:hover{color:var(--text);border-color:var(--muted);}
+  .logo-current{width:32px;height:32px;object-fit:contain;border-radius:4px;background:rgba(0,0,0,.3);border:1px solid var(--border);display:none;vertical-align:middle;margin-right:4px;}
+  .logo-current.visible{display:inline-block;}
+  .logo-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;z-index:200;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;min-width:260px;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.7);}
+  .logo-dropdown.open{display:block;}
+  .logo-grid-pick{display:flex;flex-wrap:wrap;gap:8px;max-height:180px;overflow-y:auto;}
+  .logo-pick-item{width:54px;height:54px;border-radius:6px;border:2px solid var(--border);cursor:pointer;object-fit:contain;background:rgba(0,0,0,.3);transition:all .15s;padding:2px;}
+  .logo-pick-item:hover{border-color:var(--accent);transform:scale(1.08);}
+  .logo-pick-item.selected{border-color:var(--green);box-shadow:0 0 8px rgba(82,232,138,.35);}
+  .logo-empty-msg{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;color:var(--muted);letter-spacing:.06em;padding:8px 0;}
+  .logo-drop-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--border);gap:8px;}
+  .logo-clear-lnk{font-family:'Barlow Condensed',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.08em;color:var(--red);cursor:pointer;text-transform:uppercase;background:none;border:none;padding:0;}
+  .logo-clear-lnk:hover{text-decoration:underline;}
+  .logo-hint{font-family:'Barlow Condensed',sans-serif;font-size:.62rem;color:var(--muted);letter-spacing:.04em;line-height:1.4;}
+
   @media(max-width:640px){.grid{grid-template-columns:1fr;}.grid-wide{grid-column:1;}.teams-row{grid-template-columns:1fr;}header{flex-direction:column;align-items:flex-start;}.events-grid{grid-template-columns:1fr 1fr;}.stat-grid{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
@@ -278,11 +296,39 @@
           <div class="team-header"><div class="team-dot" id="dot-away"></div><span class="field-lbl">Visitante</span></div>
           <input class="field-input" id="away-name" type="text" value="VISITANTE">
           <div class="color-row"><span class="color-lbl">Color</span><div class="color-presets" id="presets-away"></div><input type="color" id="color-away" value="#e85252" oninput="onColorChange('away')"></div>
+          <div class="color-row">
+            <span class="color-lbl">Logo</span>
+            <div class="logo-selector-wrap">
+              <img class="logo-current" id="logo-current-away" src="" alt="">
+              <button class="logo-selector-btn" onclick="toggleLogoDropdown(event,'away')">🖼 Elegir ▾</button>
+              <div class="logo-dropdown" id="logo-dd-away">
+                <div class="logo-grid-pick" id="logo-grid-away"></div>
+                <div class="logo-drop-footer">
+                  <button class="logo-clear-lnk" onclick="setLogo('away','')">✕ Sin logo</button>
+                  <span class="logo-hint">Archivos en carpeta <code>logos/</code></span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="team-block">
           <div class="team-header"><div class="team-dot" id="dot-home"></div><span class="field-lbl">Local</span></div>
           <input class="field-input" id="home-name" type="text" value="LOCAL">
           <div class="color-row"><span class="color-lbl">Color</span><div class="color-presets" id="presets-home"></div><input type="color" id="color-home" value="#4bc8e8" oninput="onColorChange('home')"></div>
+          <div class="color-row">
+            <span class="color-lbl">Logo</span>
+            <div class="logo-selector-wrap">
+              <img class="logo-current" id="logo-current-home" src="" alt="">
+              <button class="logo-selector-btn" onclick="toggleLogoDropdown(event,'home')">🖼 Elegir ▾</button>
+              <div class="logo-dropdown" id="logo-dd-home">
+                <div class="logo-grid-pick" id="logo-grid-home"></div>
+                <div class="logo-drop-footer">
+                  <button class="logo-clear-lnk" onclick="setLogo('home','')">✕ Sin logo</button>
+                  <span class="logo-hint">Archivos en carpeta <code>logos/</code></span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;margin-top:12px;">
@@ -555,6 +601,18 @@ function renderState(s){
   const ac=s.awayColor||'#e85252',hc=s.homeColor||'#4bc8e8';
 
   if(document.activeElement!==$('away-name'))  $('away-name').value  =s.awayName;
+  // Logos: preview y selección activa
+  ['away','home'].forEach(t=>{
+    const url = s[t+'Logo']||'';
+    const cur = $(`logo-current-${t}`);
+    if (cur) {
+      if (url) { cur.src=url; cur.classList.add('visible'); }
+      else { cur.src=''; cur.classList.remove('visible'); }
+    }
+    document.querySelectorAll(`#logo-grid-${t} .logo-pick-item`).forEach(el=>{
+      el.classList.toggle('selected', el.dataset.url===url);
+    });
+  });
   if(document.activeElement!==$('home-name'))  $('home-name').value  =s.homeName;
   if(document.activeElement!==$('brand-input'))$('brand-input').value=s.brand;
 
@@ -956,6 +1014,62 @@ switchTab = function(name) {
   _origSwitchTabQr(name);
   if (name === 'qr') buildQrTab();
 };
+
+// ══════════════════════════════════════════════════════
+//  LOGOS
+// ══════════════════════════════════════════════════════
+let _logoCache = [];
+
+async function _fetchLogos() {
+  try {
+    const r = await fetch('/api/logos');
+    _logoCache = await r.json();
+  } catch(e) { _logoCache = []; }
+}
+
+function _buildLogoGrid(team) {
+  const grid = $(`logo-grid-${team}`);
+  if (!grid) return;
+  const curUrl = CS[team+'Logo'] || '';
+  if (!_logoCache.length) {
+    grid.innerHTML = '<span class="logo-empty-msg">Sin logos — pon archivos en logos/</span>';
+    return;
+  }
+  grid.innerHTML = '';
+  _logoCache.forEach(name => {
+    const url = `/logos/${encodeURIComponent(name)}`;
+    const img = document.createElement('img');
+    img.className = 'logo-pick-item' + (url === curUrl ? ' selected' : '');
+    img.src = url; img.alt = name; img.title = name;
+    img.dataset.url = url;
+    img.onclick = () => setLogo(team, url);
+    grid.appendChild(img);
+  });
+}
+
+function setLogo(team, url) {
+  send(`set_${team}_logo`, { value: url });
+  closeAllLogoDropdowns();
+  setStatus(`🖼 Logo ${team === 'away' ? 'visitante' : 'local'}: ${url ? url.split('/').pop() : 'eliminado'}`);
+}
+
+async function toggleLogoDropdown(e, team) {
+  e.stopPropagation();
+  const dd = $(`logo-dd-${team}`);
+  const isOpen = dd.classList.contains('open');
+  closeAllLogoDropdowns();
+  if (!isOpen) {
+    await _fetchLogos();
+    _buildLogoGrid(team);
+    dd.classList.add('open');
+  }
+}
+
+function closeAllLogoDropdowns() {
+  document.querySelectorAll('.logo-dropdown.open').forEach(d => d.classList.remove('open'));
+}
+
+document.addEventListener('click', () => closeAllLogoDropdowns());
 </script>
 </body>
 </html>
