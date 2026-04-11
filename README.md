@@ -35,7 +35,7 @@ cd Baseball-Scoreboard
 ```
 ## 2. Install python requirements
 
-pip install requirements.txt
+pip install -r requirements.txt
 
 ### 3. Open the control panel
 
