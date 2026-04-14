@@ -249,6 +249,66 @@
   .logo-clear-lnk:hover{text-decoration:underline;}
   .logo-hint{font-family:'Barlow Condensed',sans-serif;font-size:.62rem;color:var(--muted);letter-spacing:.04em;line-height:1.4;}
 
+  /* ── AL BATE TAB ── */
+  .ab-team-label{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.15em;padding:4px 0;}
+  .ab-lineup{display:flex;flex-direction:column;gap:6px;}
+  .ab-batter-row{
+    display:flex;align-items:center;gap:8px;
+    background:var(--bg);border:1.5px solid var(--border);border-radius:8px;
+    padding:8px 12px;cursor:pointer;transition:all .15s;
+  }
+  .ab-batter-row:hover{border-color:var(--muted);}
+  .ab-batter-row.current{border-color:var(--accent);background:rgba(232,184,75,.08);}
+  .ab-batter-row.editing{border-color:#4bc8e8;background:rgba(75,200,232,.06);}
+  .ab-overlay-btn{
+    font-size:.75rem;background:rgba(232,184,75,.12);border:1px solid rgba(232,184,75,.35);
+    color:#e8b84b;border-radius:4px;padding:2px 6px;cursor:pointer;
+    flex-shrink:0;transition:all .15s;font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;letter-spacing:.06em;white-space:nowrap;
+  }
+  .ab-overlay-btn:hover{background:rgba(232,184,75,.25);}
+  .ab-order{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--muted);width:22px;text-align:center;flex-shrink:0;}
+  .ab-batter-row.current .ab-order{color:var(--accent);}
+  .ab-num{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--muted);width:28px;text-align:right;flex-shrink:0;}
+  .ab-name{flex:1;font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.04em;color:var(--text);}
+  .ab-pos{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;width:28px;text-align:right;flex-shrink:0;}
+  .ab-at-icon{font-size:.9rem;flex-shrink:0;}
+  .ab-nav-row{display:flex;gap:8px;align-items:center;}
+  .ab-nav-btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;border:none;border-radius:7px;padding:8px 18px;cursor:pointer;transition:all .12s;}
+  .ab-nav-btn:active{transform:scale(.94);}
+  .ab-pitcher-card{
+    background:var(--bg);border:1px solid var(--border);border-radius:8px;
+    padding:10px 14px;display:flex;align-items:center;gap:12px;
+  }
+  .ab-pitcher-lbl{font-family:'Barlow Condensed',sans-serif;font-size:.6rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;}
+  .ab-pitcher-name{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.06em;color:var(--text);}
+  .ab-pitcher-num{font-family:'Bebas Neue',sans-serif;font-size:.9rem;color:var(--muted);}
+
+  /* ── STATS BATEADOR ── */
+  .ab-stats-panel{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px;}
+  .ab-stats-title{font-family:'Barlow Condensed',sans-serif;font-size:.6rem;letter-spacing:.22em;color:var(--accent);text-transform:uppercase;font-weight:700;}
+  .ab-result-btns{display:flex;flex-wrap:wrap;gap:6px;}
+  .ab-res-btn{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.08em;border:none;border-radius:5px;padding:5px 12px;cursor:pointer;transition:all .12s;min-width:42px;text-align:center;}
+  .ab-res-btn:active{transform:scale(.92);}
+  .ab-res-btn.hit   {background:#1a3d20;color:#52e88a;border:1px solid #52e88a;}
+  .ab-res-btn.extra {background:#1a2d3d;color:#4bc8e8;border:1px solid #4bc8e8;}
+  .ab-res-btn.hr    {background:#3d1a1a;color:#e85252;border:1px solid #e85252;}
+  .ab-res-btn.neg   {background:#2a2010;color:#e8b84b;border:1px solid #e8b84b;}
+  .ab-res-btn.out   {background:#1e1e22;color:#8090b0;border:1px solid #505870;}
+  .ab-turns{display:flex;flex-wrap:wrap;gap:5px;min-height:24px;}
+  .ab-turn-chip{display:flex;align-items:center;gap:4px;font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.08em;padding:3px 8px 3px 10px;border-radius:20px;background:rgba(255,255,255,.06);color:var(--text);border:1px solid rgba(255,255,255,.08);}
+  .ab-turn-chip.onbase{background:rgba(82,232,138,.12);border-color:rgba(82,232,138,.35);color:#52e88a;}
+  .ab-turn-chip.out{background:rgba(255,255,255,.04);color:var(--muted);}
+  .ab-chip-del{font-size:.65rem;cursor:pointer;opacity:.5;margin-left:2px;line-height:1;}
+  .ab-chip-del:hover{opacity:1;color:var(--red);}
+  .ab-rbi-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .ab-rbi-block{display:flex;align-items:center;gap:6px;}
+  .ab-rbi-lbl{font-family:'Barlow Condensed',sans-serif;font-size:.68rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;}
+  .ab-rbi-input{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;width:48px;text-align:center;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:2px 4px;}
+  .ab-rbi-btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.8rem;width:24px;height:24px;border:none;border-radius:4px;cursor:pointer;background:var(--card);color:var(--muted);transition:all .12s;display:flex;align-items:center;justify-content:center;}
+  .ab-rbi-btn:hover{background:var(--border);color:var(--text);}
+  .ab-stat-summary{font-family:'Barlow Condensed',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.06em;color:var(--accent);text-align:center;padding:4px 0;}
+
   @media(max-width:640px){.grid{grid-template-columns:1fr;}.grid-wide{grid-column:1;}.teams-row{grid-template-columns:1fr;}header{flex-direction:column;align-items:flex-start;}.events-grid{grid-template-columns:1fr 1fr;}.stat-grid{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
@@ -278,6 +338,7 @@
 
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('game')">⚾ Partido</button>
+  <button class="tab-btn" onclick="switchTab('atbat')">🧢 Al Bate</button>
   <button class="tab-btn" onclick="switchTab('editor')">📋 Editor Entradas</button>
   <button class="tab-btn" onclick="switchTab('lineup')">👥 Alineación</button>
   <button class="tab-btn" onclick="switchTab('gifs')">🎬 GIFs</button>
@@ -553,6 +614,94 @@
 </div>
 </div><!-- /tab-qr -->
 
+<!-- ══════════════════ TAB AL BATE ══════════════════ -->
+<div class="tab-panel" id="tab-atbat">
+<div class="grid">
+
+  <div class="card grid-wide">
+    <div class="card-title">Turno al bate</div>
+    <p style="font-family:'Barlow Condensed',sans-serif;font-size:.72rem;color:var(--muted);letter-spacing:.05em;line-height:1.5">
+      El equipo al bate se determina automáticamente por el half del inning.
+      Pulsa un bateador para seleccionarlo manualmente o usa ◀ ▶ para avanzar.
+    </p>
+
+    <!-- Bateador actual + navegación -->
+    <div class="ab-nav-row">
+      <button class="ab-nav-btn btn-muted" onclick="abPrev()">◀ Overlay</button>
+      <div style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:.78rem;color:var(--muted);letter-spacing:.06em;text-align:center;" id="ab-status">—</div>
+      <button class="ab-nav-btn btn-gold" onclick="abNext()">Overlay ▶</button>
+    </div>
+    <div class="ab-nav-row" style="margin-top:-4px;">
+      <button class="ab-nav-btn btn-muted" style="font-size:.72rem;padding:5px 12px;color:#4bc8e8;border-color:#4bc8e8" onclick="abEditPrev()">◀ Editar</button>
+      <div style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:.7rem;color:#4bc8e8;letter-spacing:.06em;text-align:center;" id="ab-edit-status">—</div>
+      <button class="ab-nav-btn btn-muted" style="font-size:.72rem;padding:5px 12px;color:#4bc8e8;border-color:#4bc8e8" onclick="abEditNext()">Editar ▶</button>
+    </div>
+
+    <!-- Pitcher actual -->
+    <div class="ab-pitcher-card">
+      <div>
+        <div class="ab-pitcher-lbl">Pitcher en el montículo</div>
+        <div class="ab-pitcher-name" id="ab-pitcher-name">—</div>
+      </div>
+      <div class="ab-pitcher-num" id="ab-pitcher-num"></div>
+    </div>
+
+    <!-- Lista de bateadores -->
+    <div class="ab-lineup" id="ab-lineup">
+      <!-- generado por JS -->
+    </div>
+
+    <!-- Panel de stats del bateador actual -->
+    <div class="ab-stats-panel" id="ab-stats-panel">
+      <div class="ab-stats-title" id="ab-stats-header">Stats del bateador actual</div>
+
+      <!-- Botones rápidos de resultado -->
+      <div>
+        <div class="ab-rbi-lbl" style="margin-bottom:6px">Añadir resultado de turno</div>
+        <div class="ab-result-btns">
+          <button class="ab-res-btn hit"   onclick="addAbResult('H')">H</button>
+          <button class="ab-res-btn extra" onclick="addAbResult('2B')">2B</button>
+          <button class="ab-res-btn extra" onclick="addAbResult('3B')">3B</button>
+          <button class="ab-res-btn hr"    onclick="addAbResult('HR')">HR</button>
+          <button class="ab-res-btn neg"   onclick="addAbResult('BB')">BB</button>
+          <button class="ab-res-btn neg"   onclick="addAbResult('HBP')">HBP</button>
+          <button class="ab-res-btn neg"   onclick="addAbResult('E')">E</button>
+          <button class="ab-res-btn out"   onclick="addAbResult('K')">K</button>
+          <button class="ab-res-btn out"   onclick="addAbResult('O')">Out</button>
+        </div>
+      </div>
+
+      <!-- Historial de turnos -->
+      <div>
+        <div class="ab-rbi-lbl" style="margin-bottom:5px">Historial de turnos (pulsa ✕ para borrar)</div>
+        <div class="ab-turns" id="ab-turns">—</div>
+      </div>
+
+      <!-- RBI y Carreras -->
+      <div class="ab-rbi-row">
+        <div class="ab-rbi-block">
+          <span class="ab-rbi-lbl">RBI</span>
+          <button class="ab-rbi-btn" onclick="changeAbStat('rbi',-1)">−</button>
+          <input  class="ab-rbi-input" id="ab-rbi-val" type="number" min="0" value="0"
+                  onchange="setAbStat('rbi',this.value)">
+          <button class="ab-rbi-btn" onclick="changeAbStat('rbi',1)">+</button>
+        </div>
+        <div class="ab-rbi-block">
+          <span class="ab-rbi-lbl">Carreras (R)</span>
+          <button class="ab-rbi-btn" onclick="changeAbStat('run',-1)">−</button>
+          <input  class="ab-rbi-input" id="ab-run-val" type="number" min="0" value="0"
+                  onchange="setAbStat('run',this.value)">
+          <button class="ab-rbi-btn" onclick="changeAbStat('run',1)">+</button>
+        </div>
+        <div class="ab-stat-summary" id="ab-stat-summary"></div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</div><!-- /tab-atbat -->
+
 <div class="status-bar">
   <span id="status-msg">Conectando al servidor WebSocket...</span>
   <span id="status-clock">--:--:--</span>
@@ -695,7 +844,17 @@ function onColorChange(t){send(`set_${t}_color`,{value:$(`color-${t}`).value});}
 function changeScore(team,delta){send('score',{team,delta});}
 function changeInning(delta){send('inning',{delta});}
 function toggleHalf(){send('toggle_half');}
-function changeStat(stat,team,delta){send(stat,{team,delta});}
+function changeStat(stat,team,delta){
+  send(stat,{team,delta});
+  // Auto-registro: solo para el equipo al bate y solo en positivo
+  if (delta > 0) {
+    const battingTeam = CS.isTop ? 'away' : 'home';
+    if (stat === 'hit'   && team === battingTeam)
+      send('add_ab_result', { team: battingTeam, slot: _abIdx(), result: 'H' });
+    else if (stat === 'error' && team === battingTeam)
+      send('add_ab_result', { team: battingTeam, slot: _abIdx(), result: 'E' });
+  }
+}
 
 // ── CONTEO con modales ──
 function changeCount(type,delta){
@@ -726,7 +885,20 @@ function openModal(type){
   $('modal').classList.add('open');
 }
 function closeModal(){$('modal').classList.remove('open');pendingAction=null;}
-function confirmModal(){if(pendingAction)send(pendingAction);closeModal();}
+function confirmModal(){
+  if (!pendingAction) { closeModal(); return; }
+  // Auto-registro de stats ANTES de que el servidor avance el bateador
+  const t = _abTeam();
+  const slot = _abIdx();   // slot ACTUAL antes de avanzar
+  if (pendingAction === 'strikeout_confirm')
+    send('add_ab_result', { team: t, slot, result: 'K' });
+  else if (pendingAction === 'walk_confirm')
+    send('add_ab_result', { team: t, slot, result: 'BB' });
+  else if (pendingAction === 'out_confirm')
+    send('add_ab_result', { team: t, slot, result: 'O' });
+  send(pendingAction);
+  closeModal();
+}
 $('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
@@ -943,9 +1115,6 @@ renderState = function(s) {
 // ══════════════════════════════════════════════════════
 const QR_PAGES = [
   { id:'control',    title:'⚾ Control',    desc:'Panel de control completo',     path:'/control'    },
-  { id:'overlay',    title:'📺 Overlay',    desc:'Marcador de jugada (OBS)',       path:'/overlay'    },
-  { id:'scoreboard', title:'📊 Scoreboard', desc:'Marcador entrada×entrada (OBS)', path:'/scoreboard' },
-  { id:'lineup',     title:'👥 Lineup',     desc:'Alineación con campo (OBS)',     path:'/lineup'     },
 ];
 
 let qrBuilt = false;
@@ -983,7 +1152,6 @@ async function buildQrTab() {
     card.className = 'qr-card';
     card.innerHTML = `
       <div class="qr-card-title">${page.title}</div>
-      <p class="qr-card-desc">${page.desc}</p>
       <div class="qr-box" id="qrbox-${page.id}"></div>
       <div class="qr-url">${url}</div>
       <button class="qr-copy-btn" id="qrcopy-${page.id}">📋 Copiar URL</button>
@@ -1070,6 +1238,213 @@ function closeAllLogoDropdowns() {
 }
 
 document.addEventListener('click', () => closeAllLogoDropdowns());
+
+// ══════════════════════════════════════════════════════
+//  AL BATE TAB
+// ══════════════════════════════════════════════════════
+function _abTeam() {
+  return CS.isTop ? 'away' : 'home';
+}
+function _abIdx() {
+  const t = _abTeam();
+  return (CS.atBat || {})[t+'BatterIdx'] || 0;
+}
+let _editIdx = 0;   // índice del bateador que se está EDITANDO (local, no overlay)
+// Sincronizar _editIdx al cambiar de half (nuevo bateador en nueva media entrada)
+function _syncEditIdx() { _editIdx = _abIdx(); }
+function _abPlayers() {
+  const t = _abTeam();
+  return ((CS.lineup || {})[t] || {}).players || [];
+}
+function _pitcherTeam() {
+  return CS.isTop ? 'home' : 'away';
+}
+
+// Navegar overlay (mueve el overlay Y el editor juntos)
+function abNext() {
+  const t = _abTeam(); const ni = (_abIdx()+1)%9;
+  _editIdx = ni;
+  send('set_batter_idx', { team: t, idx: ni });
+}
+function abPrev() {
+  const t = _abTeam(); const ni = ((_abIdx()+8)%9);
+  _editIdx = ni;
+  send('set_batter_idx', { team: t, idx: ni });
+}
+// Navegar solo el editor (sin mover overlay)
+function abEditNext() { _editIdx = (_editIdx+1)%9; renderAtBat(CS); }
+function abEditPrev() { _editIdx = ((_editIdx+8)%9); renderAtBat(CS); }
+// Enviar el editor al overlay
+function abSetOverlay() { send('set_batter_idx', { team: _abTeam(), idx: _editIdx }); }
+
+function renderAtBat(s) {
+  if (!s || !s.atBat || !s.lineup) return;
+
+  const battingTeam  = s.isTop ? 'away' : 'home';
+  const fieldingTeam = s.isTop ? 'home' : 'away';
+  const teamColor    = s[battingTeam+'Color'] || '#e8b84b';
+  const teamName     = s[battingTeam+'Name']  || (s.isTop ? 'VISITANTE' : 'LOCAL');
+  const batterIdx    = (s.atBat[battingTeam+'BatterIdx'] || 0);
+  const players      = (s.lineup[battingTeam]  || {}).players || [];
+  const pitchers     = (s.lineup[fieldingTeam] || {}).players || [];
+
+  // Status label
+  $('ab-status').textContent = `${s.isTop?'TOP▲':'BOT▼'} — ${teamName} — Overlay: ${batterIdx+1}º`;
+  const editEl = $('ab-edit-status');
+  if (editEl) {
+    const ep = players[_editIdx] || {};
+    editEl.textContent = `Editando: ${_editIdx+1}º ${ep.name ? '— '+ep.name : ''}`;
+  }
+
+  // Pitcher: buscar en el equipo en campo quien tiene posición P
+  const pitcher = pitchers.find(p => p.position === 'P') ||
+                  pitchers[9] || // slot 10 como pitcher DH
+                  null;
+  if (pitcher && pitcher.name) {
+    $('ab-pitcher-name').textContent = pitcher.name;
+    $('ab-pitcher-num').textContent  = pitcher.number ? `#${pitcher.number}` : '';
+  } else {
+    $('ab-pitcher-name').textContent = '—';
+    $('ab-pitcher-num').textContent  = '';
+  }
+
+  // Sincronizar _editIdx si cambió el half (nuevo equipo al bate)
+  if (_editIdx > 8) _editIdx = 0;
+
+  // ── Lista de bateadores (slots 0-8) ──
+  const lineup = $('ab-lineup');
+  lineup.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const p = players[i] || {};
+    const isOverlay = (i === batterIdx);
+    const isEditing = (i === _editIdx);
+    const stats = _calcStats(p);
+    const row = document.createElement('div');
+    let cls = 'ab-batter-row';
+    if (isOverlay) cls += ' current';
+    if (isEditing && !isOverlay) cls += ' editing';
+    row.className = cls;
+    // Clic en la fila → seleccionar para EDITAR (sin mover overlay)
+    row.onclick = () => { _editIdx = i; renderAtBat(CS); };
+
+    const overlayIcon = isOverlay ? '🏏' : '';
+    const statsHtml = stats.pa > 0
+      ? `<span style="font-family:'Barlow Condensed',sans-serif;font-size:.7rem;color:var(--muted)">${stats.lineScore}</span>`
+      : '';
+
+    row.innerHTML = `
+      <span class="ab-order" style="${isOverlay?'color:'+teamColor:(isEditing?'color:#4bc8e8':'')}">${i+1}</span>
+      <span class="ab-num">${p.number ? '#'+p.number : ''}</span>
+      <span class="ab-name">${p.name || '<span style="color:var(--muted);font-style:italic">Sin nombre</span>'}</span>
+      <span class="ab-pos">${p.position || ''}</span>
+      ${statsHtml}
+      <span style="margin-left:auto;font-size:.85rem;width:18px;text-align:center">${overlayIcon}</span>
+      <button class="ab-overlay-btn" title="Enviar al overlay" onclick="(function(e){e.stopPropagation();_editIdx=${i};send('set_batter_idx',{team:'${battingTeam}',idx:${i}});renderAtBat(CS);})(event)">📺</button>
+    `;
+    lineup.appendChild(row);
+  }
+
+  // ── Panel de stats del bateador en edición (_editIdx) ──
+  const cur = players[_editIdx] || {};
+  const curStats = _calcStats(cur);
+  $('ab-stats-header').textContent = `Stats — ${cur.name || 'bateador ' + (_editIdx+1)}`;
+  _renderTurns(cur.atbats || [], battingTeam, _editIdx);
+  const rbi = cur.rbi ?? 0; const run = cur.run ?? 0;
+  if (document.activeElement !== $('ab-rbi-val')) $('ab-rbi-val').value = rbi;
+  if (document.activeElement !== $('ab-run-val')) $('ab-run-val').value = run;
+  $('ab-stat-summary').textContent = curStats.displayStr;
+}
+
+// ── Resultados que cuentan como llegada a base ──
+const ON_BASE = new Set(['H','2B','3B','HR','BB','HBP','E']);
+const RESULT_ORDER = ['HR','3B','2B','H','BB','HBP','E','K','O'];
+
+function _calcStats(p) {
+  const ab  = p.atbats || [];
+  const pa  = ab.length;
+  const ob  = ab.filter(r => ON_BASE.has(r)).length;
+  const rbi = p.rbi ?? 0;
+  const run = p.run ?? 0;
+
+  // Contar por tipo
+  const counts = {};
+  ab.forEach(r => { counts[r] = (counts[r]||0)+1; });
+
+  // Construir resumen: orden fijo
+  const parts = [];
+  RESULT_ORDER.forEach(r => {
+    if (!counts[r]) return;
+    parts.push(counts[r] > 1 ? `${counts[r]}${r}` : r);
+  });
+  if (rbi > 0) parts.push(rbi > 1 ? `${rbi}RBI` : 'RBI');
+  if (run > 0) parts.push(run > 1 ? `${run}R` : 'R');
+
+  const displayStr = pa > 0
+    ? `${ob}/${pa} (${parts.join(', ') || '—'})`
+    : '0/0';
+  const lineScore  = pa > 0 ? `${ob}/${pa}` : '—';
+
+  return { pa, ob, rbi, run, parts, displayStr, lineScore };
+}
+
+function _renderTurns(atbats, team, slot) {
+  const container = $('ab-turns');
+  container.innerHTML = '';
+  if (!atbats.length) {
+    container.innerHTML = '<span style="color:var(--muted);font-size:.75rem">Sin turnos registrados</span>';
+    return;
+  }
+  atbats.forEach((r, idx) => {
+    const chip = document.createElement('span');
+    chip.className = 'ab-turn-chip ' + (ON_BASE.has(r) ? 'onbase' : 'out');
+    const del = document.createElement('span');
+    del.className = 'ab-chip-del'; del.textContent = '✕';
+    del.title = 'Borrar turno';
+    del.onclick = (e) => { e.stopPropagation(); removeAbResult(team, slot, idx); };
+    chip.textContent = r;
+    chip.appendChild(del);
+    container.appendChild(chip);
+  });
+}
+
+// ── Funciones de stats ──
+function addAbResult(result) {
+  const team = _abTeam(); const slot = _editIdx;
+  send('add_ab_result', { team, slot, result });
+}
+function removeAbResult(team, slot, turn_idx) {
+  send('remove_ab_result', { team, slot, turn_idx });
+}
+function changeAbStat(stat, delta) {
+  const team = _abTeam(); const slot = _editIdx;
+  const cur = (CS.lineup[team]?.players?.[slot]?.[stat]) ?? 0;
+  const val = Math.max(0, cur + delta);
+  send(`set_ab_${stat}`, { team, slot, value: val });
+}
+function setAbStat(stat, value) {
+  const team = _abTeam(); const slot = _editIdx;
+  send(`set_ab_${stat}`, { team, slot, value: parseInt(value)||0 });
+}
+
+// Enganchar renderState para actualizar el tab al bate
+let _lastHalf = null;
+const _origRenderStateAb = renderState;
+renderState = function(s) {
+  _origRenderStateAb(s);
+  // Si cambia el half, sincronizar _editIdx con el nuevo overlay idx
+  const curHalf = (s.isTop ? 'top' : 'bot') + s.inning;
+  if (curHalf !== _lastHalf) { _editIdx = (s.atBat || {})[((s.isTop?'away':'home')+'BatterIdx')] || 0; _lastHalf = curHalf; }
+  if (document.getElementById('tab-atbat').classList.contains('active')) {
+    renderAtBat(s);
+  }
+};
+
+// Enganchar switchTab para renderizar al entrar
+const _origSwitchTabAb = switchTab;
+switchTab = function(name) {
+  _origSwitchTabAb(name);
+  if (name === 'atbat') renderAtBat(CS);
+};
 </script>
 </body>
 </html>

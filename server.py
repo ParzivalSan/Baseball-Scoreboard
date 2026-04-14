@@ -38,6 +38,11 @@ state = {
     "balls":0,"strikes":0,"outs":0,
     "bases":{"1st":False,"2nd":False,"3rd":False},
     "awayLogo":"","homeLogo":"",
+    # Al Bate — índice del bateador actual (0-8) por equipo
+    "atBat": {
+        "awayBatterIdx": 0,   # slot en lineup.away.players (0-8)
+        "homeBatterIdx": 0,   # slot en lineup.home.players (0-8)
+    },
     # Tiempo — se actualiza desde Open-Meteo cada 5 min
     "weatherLocation": "Barcelona",
     "weather": {"temp": None, "windspeed": None, "winddir": None, "code": None, "ok": False},
@@ -46,11 +51,11 @@ state = {
         "showing": "away",   # "away" | "home"
         "away": {
             "coach": "",
-            "players": [{"order": i+1, "name": "", "position": "", "number": ""} for i in range(10)]
+            "players": [{"order": i+1, "name": "", "position": "", "number": "", "atbats": [], "rbi": 0, "run": 0} for i in range(10)]
         },
         "home": {
             "coach": "",
-            "players": [{"order": i+1, "name": "", "position": "", "number": ""} for i in range(10)]
+            "players": [{"order": i+1, "name": "", "position": "", "number": "", "atbats": [], "rbi": 0, "run": 0} for i in range(10)]
         }
     },
 }
@@ -97,6 +102,11 @@ def _add_out():
         if state["isTop"]: state["isTop"]=False
         else: state["isTop"]=True; state["inning"]+=1; _mark_inning_played()
 
+def _advance_batter():
+    """Avanza al siguiente bateador del equipo que está al bate."""
+    key = "awayBatterIdx" if state["isTop"] else "homeBatterIdx"
+    state["atBat"][key] = (state["atBat"][key] + 1) % 9
+
 def _walk():
     b=state["bases"]; is_top=state["isTop"]
     team_key="awayScore" if is_top else "homeScore"
@@ -105,6 +115,7 @@ def _walk():
     if b["2nd"]: b["3rd"]=True
     if b["1st"]: b["2nd"]=True
     b["1st"]=True; state["balls"]=0; state["strikes"]=0
+    _advance_batter()
 
 def handle_action(action, payload):
     if   action=="set_away_name":  state["awayName"] =payload.get("value",state["awayName"])
@@ -121,10 +132,12 @@ def handle_action(action, payload):
         team=payload.get("team"); delta=payload.get("delta",0)
         key="awayHits" if team=="away" else "homeHits"
         state[key]=max(0,state[key]+delta)
+        if delta>0: _advance_batter()
     elif action=="error":
         team=payload.get("team"); delta=payload.get("delta",0)
         key="awayErrors" if team=="away" else "homeErrors"
         state[key]=max(0,state[key]+delta)
+        if delta>0: _advance_batter()
     elif action=="inning":
         state["inning"]=max(1,min(15,state["inning"]+payload.get("delta",0)))
     elif action=="toggle_half": state["isTop"]=not state["isTop"]
@@ -132,9 +145,9 @@ def handle_action(action, payload):
     elif action=="walk_confirm": _walk()
     elif action=="strike":  state["strikes"]=min(2,state["strikes"]+1)
     elif action=="strikeout_confirm":
-        state["balls"]=0; state["strikes"]=0; _add_out()
+        state["balls"]=0; state["strikes"]=0; _add_out(); _advance_batter()
     elif action=="out": _add_out()
-    elif action=="out_confirm": _add_out()
+    elif action=="out_confirm": _add_out(); _advance_batter()
     elif action=="ball_minus":   state["balls"]  =max(0,state["balls"]-1)
     elif action=="strike_minus": state["strikes"]=max(0,state["strikes"]-1)
     elif action=="out_minus":    state["outs"]   =max(0,state["outs"]-1)
@@ -157,6 +170,10 @@ def handle_action(action, payload):
             "awayErrors":0,"homeErrors":0,"inningScores":[[None,None]]*MAX_INNINGS,
             "inning":1,"isTop":True,"balls":0,"strikes":0,"outs":0,
             "bases":{"1st":False,"2nd":False,"3rd":False}})
+        state["atBat"] = {"awayBatterIdx":0,"homeBatterIdx":0}
+        for t in ("away","home"):
+            for p in state["lineup"][t]["players"]:
+                p["atbats"] = []; p["rbi"] = 0; p["run"] = 0
     elif action=="trigger_anim":
         evt=payload.get("type","")
         if evt=="RUN":
@@ -165,6 +182,37 @@ def handle_action(action, payload):
         else:
             tn=payload.get("team_name",""); tc=payload.get("team_color","")
         return {"event":evt,"eventTeam":tn,"eventTeamColor":tc}
+    elif action=="set_batter_idx":
+        team = payload.get("team")   # "away" | "home"
+        idx  = payload.get("idx", 0)
+        if team in ("away","home") and 0 <= idx < 9:
+            key = "awayBatterIdx" if team=="away" else "homeBatterIdx"
+            state["atBat"][key] = idx
+    elif action=="add_ab_result":
+        team   = payload.get("team")
+        slot   = payload.get("slot", 0)
+        result = payload.get("result", "")
+        VALID  = {"H","2B","3B","HR","E","BB","HBP","K","O"}
+        if team in ("away","home") and 0 <= slot < 10 and result in VALID:
+            state["lineup"][team]["players"][slot]["atbats"].append(result)
+    elif action=="remove_ab_result":
+        team     = payload.get("team")
+        slot     = payload.get("slot", 0)
+        turn_idx = payload.get("turn_idx", -1)
+        if team in ("away","home") and 0 <= slot < 10:
+            ab = state["lineup"][team]["players"][slot]["atbats"]
+            if 0 <= turn_idx < len(ab):
+                ab.pop(turn_idx)
+    elif action=="set_ab_rbi":
+        team = payload.get("team"); slot = payload.get("slot", 0)
+        val  = max(0, int(payload.get("value", 0)))
+        if team in ("away","home") and 0 <= slot < 10:
+            state["lineup"][team]["players"][slot]["rbi"] = val
+    elif action=="set_ab_run":
+        team = payload.get("team"); slot = payload.get("slot", 0)
+        val  = max(0, int(payload.get("value", 0)))
+        if team in ("away","home") and 0 <= slot < 10:
+            state["lineup"][team]["players"][slot]["run"] = val
     elif action=="set_away_logo":
         state["awayLogo"] = payload.get("value","")
     elif action=="set_home_logo":
@@ -269,6 +317,9 @@ def serve_scoreboard(): return FileResponse("static/baseball-scoreboard.html")
 
 @app.get("/lineup")
 def serve_lineup(): return FileResponse("static/baseball-lineup.html")
+
+@app.get("/atbat")
+def serve_atbat(): return FileResponse("static/baseball-atbat.html")
 
 @app.get("/api/localip")
 def get_ip():

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Baseball at Bat</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    width:100%; height:100%;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  /* Canvas 1920×1080 — widget en esquina superior derecha */
+  body {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 28px;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  /* ── CONTENEDOR: dos filas verticales ── */
+  .ab-wrap {
+    display: flex;
+    flex-direction: column;
+    width: 340px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.88), 0 0 0 1px rgba(255,255,255,.07);
+    animation: slideIn .4s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes slideIn {
+    from { opacity:0; transform:translateX(12px); }
+    to   { opacity:1; transform:translateX(0); }
+  }
+
+  /* ── FILA PITCHER (una línea) ── */
+  .ab-row {
+    display: flex;
+    align-items: center;
+    height: 46px;
+    background: rgba(8,10,16,.96);
+  }
+  .ab-row.pitcher { border-bottom: 1px solid rgba(255,255,255,.08); }
+
+  /* Fila bateador: dos líneas (nombre + stats) */
+  .ab-row.batter {
+    height: auto;
+    align-items: stretch;
+    padding: 0;
+  }
+  .ab-row.batter .ab-bar { align-self: stretch; }
+  .ab-batter-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6px 0px 6px 0;
+    min-width: 0;
+    gap: 2px;
+  }
+  .ab-batter-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .ab-batter-stats {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    color: rgba(255,255,255,.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ab-batter-stats.highlight { color: rgba(255,255,255,.8); }
+
+  /* Barra de color del equipo (lado izquierdo) */
+  .ab-bar {
+    width: 4px;
+    align-self: stretch;
+    flex-shrink: 0;
+    margin-right: 15px;
+  }
+
+  /* Etiqueta de rol */
+  .ab-role {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: .58rem;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.35);
+    width: 40px;
+    flex-shrink: 0;
+    padding: 0 8px;
+  }
+
+  /* Nombre del jugador */
+  .ab-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.25rem;
+    letter-spacing: .05em;
+    color: #f0f2f8;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  /* Posición */
+  .ab-pos {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.38);
+    background: rgba(255,255,255,.06);
+    padding: 2px 7px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-right: 10px;
+  }
+
+  /* Turno al bate (solo bateador) */
+  .ab-order {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: rgba(255,255,255,.28);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  /* Stats line */
+  .ab-stats {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    color: rgba(255,255,255,.55);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+    padding-right: 10px;
+    max-width: 120px;
+  }
+  .ab-stats.highlight { color: rgba(255,255,255,.75); }
+</style>
+</head>
+<body>
+
+<div class="ab-wrap" id="ab-wrap">
+
+  <!-- PITCHER (arriba) -->
+  <div class="ab-row pitcher">
+    <div class="ab-bar" id="ab-bar-pitcher"></div>
+    
+    <span class="ab-name" id="ab-name-pitcher">—</span>
+    <span class="ab-pos"  id="ab-pos-pitcher">P</span>
+  </div>
+
+  <!-- BATEADOR (abajo) — dos líneas: nombre + stats -->
+  <div class="ab-row batter">
+    <div class="ab-bar" id="ab-bar-batter"></div>
+    
+    <div class="ab-batter-inner">
+      <div class="ab-batter-top">
+        <span class="ab-name" id="ab-name-batter">—</span>
+        <span class="ab-order" id="ab-order-batter" style="flex-shrink:0"></span>
+        <span class="ab-pos"   id="ab-pos-batter"   style="flex-shrink:0"></span>
+      </div>
+      <div class="ab-batter-stats" id="ab-stats-batter">0/0</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  function renderAtBat(s) {
+    if (!s || !s.lineup || !s.atBat) return;
+
+    const battingTeam  = s.isTop ? 'away' : 'home';
+    const fieldingTeam = s.isTop ? 'home' : 'away';
+
+    const battColor  = s[battingTeam  + 'Color'] || '#e8b84b';
+    const fieldColor = s[fieldingTeam + 'Color'] || '#4bc8e8';
+
+    const batters  = (s.lineup[battingTeam]  || {}).players || [];
+    const fielders = (s.lineup[fieldingTeam] || {}).players || [];
+
+    const batterIdx = s.atBat[battingTeam + 'BatterIdx'] || 0;
+    const batter    = batters[batterIdx] || {};
+
+    // Pitcher: primero por posición P, luego slot 9 en modo DH
+    const pitcher = fielders.find(p => p.position === 'P') ||
+                    (fielders[9] && fielders[9].name ? fielders[9] : null) ||
+                    {};
+
+    // Pitcher
+    $('ab-bar-pitcher').style.background = fieldColor;
+    $('ab-name-pitcher').textContent     = pitcher.name     || '—';
+    $('ab-pos-pitcher').textContent      = pitcher.position || 'P';
+
+    // Bateador
+    $('ab-bar-batter').style.background = battColor;
+    $('ab-name-batter').textContent     = batter.name     || '—';
+    $('ab-pos-batter').textContent      = batter.position || '';
+    $('ab-order-batter').textContent    = batterIdx + 1 + 'º';
+
+    // Stats del bateador
+    const statsEl = $('ab-stats-batter');
+    const ab   = batter.atbats || [];
+    const pa   = ab.length;
+    const ON_BASE_SET = new Set(['H','2B','3B','HR','BB','HBP','E']);
+    const ob   = ab.filter(r => ON_BASE_SET.has(r)).length;
+    const rbi  = batter.rbi  ?? 0;
+    const run  = batter.run  ?? 0;
+    if (pa > 0) {
+      // Contar por tipo
+      const RESULT_ORDER = ['HR','3B','2B','H','BB','HBP','E','K','O'];
+      const counts = {};
+      ab.forEach(r => { counts[r] = (counts[r]||0)+1; });
+      const parts = [];
+      RESULT_ORDER.forEach(r => {
+        if (!counts[r]) return;
+        parts.push(counts[r] > 1 ? counts[r]+r : r);
+      });
+      if (rbi > 0) parts.push(rbi > 1 ? rbi+'RBI' : 'RBI');
+      if (run > 0) parts.push(run > 1 ? run+'R' : 'R');
+      statsEl.textContent = ob+'/'+pa+' ('+parts.join(', ')+')';
+      statsEl.classList.toggle('highlight', ob > 0);
+    } else {
+      statsEl.textContent = '0/0';
+      statsEl.classList.remove('highlight');
+    }
+  }
+
+  function connect() {
+    const ws = new WebSocket('ws://' + location.host + '/ws');
+    ws.onopen    = function() {};
+    ws.onclose   = function() { setTimeout(connect, 3000); };
+    ws.onerror   = function() {};
+    ws.onmessage = function(e) {
+      try { renderAtBat(JSON.parse(e.data)); }
+      catch(err) { console.error(err); }
+    };
+  }
+  connect();
+</script>
+</body>
+</html>
